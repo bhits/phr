@@ -1,5 +1,6 @@
 package gov.samhsa.c2s.phr.service;
 
+import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,4 +15,17 @@ public interface UploadedDocumentService {
      */
     @Transactional
     List<UploadedDocumentInfoDto> getPatientDocumentInfoList(String patientMrn);
+
+    /**
+     * Gets a specific document by document ID
+     *
+     *    This method requires the patient MRN as a parameter in order to confirm
+     *    that the document being retrieved belongs to the specified patient.
+     *
+     * @param patientMrn - The MRN of the patient whom the queried document belongs to
+     * @param documentId - The ID of the document to retrieve
+     * @return An UploadedDocumentDto which contains the document itself, as well as document metadata
+     */
+    @Transactional
+    UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long documentId);
 }

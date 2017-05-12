@@ -1,6 +1,7 @@
 package gov.samhsa.c2s.phr.web;
 
 import gov.samhsa.c2s.phr.service.UploadedDocumentService;
+import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,4 +25,10 @@ public class UploadedDocumentsRestController {
     public List<UploadedDocumentInfoDto> getPatientDocumentsList(@PathVariable String patientMrn){
         return uploadedDocumentService.getPatientDocumentInfoList(patientMrn);
     }
+
+    @GetMapping("/patient/{patientMrn}/document/{documentId}")
+    public UploadedDocumentDto getPatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
+        return uploadedDocumentService.getPatientDocumentByDocId(patientMrn, documentId);
+    }
+
 }

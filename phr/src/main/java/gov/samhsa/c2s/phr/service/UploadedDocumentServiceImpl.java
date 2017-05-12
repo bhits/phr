@@ -2,8 +2,10 @@ package gov.samhsa.c2s.phr.service;
 
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
+import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
+import gov.samhsa.c2s.phr.service.exception.InvalidPatientForDocumentException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
@@ -46,5 +49,31 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }else{
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long documentId) {
+        UploadedDocumentDto uploadedDocumentDto;
+
+        if((patientMrn != null) && (patientMrn.length() > 0)){
+            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(documentId);
+
+            if(uploadedDocument != null){
+                if(Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
+                    uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
+                }else{
+                    throw new InvalidPatientForDocumentException("The document requested does not belong to the patient specified");
+                }
+            }else{
+                throw new NoDocumentsFoundException("No document found with the specified document ID");
+            }
+        }else{
+            throw new InvalidInputException("Patient MRN cannot be null or empty");
+        }
+
+        return uploadedDocumentDto;
     }
 }
