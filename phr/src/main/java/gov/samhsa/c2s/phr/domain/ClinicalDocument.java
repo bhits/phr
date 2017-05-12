@@ -26,5 +26,8 @@ public class ClinicalDocument {
     @NotNull
     private String documentName;
 
+    @NotNull
+    private ClinicalDocumentContentType documentContentType;
+
     private String documentDescription;
 }
