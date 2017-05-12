@@ -11,7 +11,7 @@ import javax.validation.Valid;
 @Entity
 @Data
 @Audited
-public class UploadedDocument {
+class UploadedDocument {
     @Id
     private String documentId;
 
