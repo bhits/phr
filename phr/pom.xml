@@ -10,6 +10,38 @@
 
     <name>phr</name>
     <description>Patient Health Record Service</description>
+    <url>${project.scm.url}</url>
+
+    <organization>
+        <name>SAMHSA</name>
+        <url>http://www.samhsa.gov/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>BHITS Team</id>
+            <name>BHITS Team</name>
+            <organization>FEi Systems</organization>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>See license in LICENSE</name>
+            <url>${project.scm.url}/blob/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <ciManagement>
+        <system>CI</system>
+        <url>http://BhitsBuild03/</url>
+    </ciManagement>
+
+    <scm>
+        <url>https://github.com/bhits/phr</url>
+        <connection>scm:git:${project.scm.url}.git</connection>
+        <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
+    </scm>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
