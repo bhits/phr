@@ -1,0 +1,21 @@
+server:
+  port: 8463
+logging:
+  file: /java/C2S_LOGS/phr/phr.log
+info:
+  component: Patient Health Record Service
+ribbon:
+  ReadTimeout: 50000
+spring:
+  datasource:
+    # configure url, username and password per environment
+    url: jdbc:mysql://localhost:3306/phr?autoReconnect=true
+    username: root
+    password: admin
+---
+spring.profiles: standalone-ssl
+spring:
+  profiles:
+    include: ssl-default
+server:
+  context-path: /phr
