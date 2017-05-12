@@ -2,10 +2,11 @@ package gov.samhsa.c2s.phr.domain;
 
 import lombok.Data;
 import org.hibernate.envers.Audited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 
 @Entity
 @Data
@@ -14,19 +15,20 @@ public class UploadedDocument {
     @Id
     private String documentId;
 
-    @NotNull
+    @NotEmpty
     private String patientMrn;
 
-    @NotNull
+    @NotEmpty
     private byte[] documentContents;
 
-    @NotNull
+    @NotEmpty
     private String documentFileName;
 
-    @NotNull
+    @NotEmpty
     private String documentName;
 
-    @NotNull
+    @Valid
+    @NotEmpty
     private UploadedDocumentContentType documentContentType;
 
     private String documentDescription;
