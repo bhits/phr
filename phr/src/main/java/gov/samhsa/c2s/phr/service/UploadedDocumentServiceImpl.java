@@ -4,7 +4,7 @@ import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
-import gov.samhsa.c2s.phr.service.exception.NoPatientDocumentsFoundException;
+import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
                 return uploadedDocumentInfoDtoList;
             }else{
-                throw new NoPatientDocumentsFoundException("No documents found for specified patient MRN");
+                throw new NoDocumentsFoundException("No documents found for specified patient MRN");
             }
         }else{
             throw new InvalidInputException("Patient MRN cannot be null or empty");
