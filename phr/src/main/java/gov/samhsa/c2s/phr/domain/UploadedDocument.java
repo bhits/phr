@@ -5,8 +5,10 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.validation.Valid;
+import javax.persistence.Lob;
 
 @Entity
 @Data
@@ -18,6 +20,7 @@ public class UploadedDocument {
     @NotEmpty
     private String patientMrn;
 
+    @Lob
     @NotEmpty
     private byte[] documentContents;
 
@@ -27,8 +30,8 @@ public class UploadedDocument {
     @NotEmpty
     private String documentName;
 
-    @Valid
     @NotEmpty
+    @Enumerated(EnumType.STRING)
     private UploadedDocumentContentType documentContentType;
 
     private String documentDescription;
