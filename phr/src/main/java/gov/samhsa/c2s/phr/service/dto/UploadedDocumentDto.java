@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @NoArgsConstructor
 public class UploadedDocumentDto {
     @NotEmpty
-    private String documentId;
+    private Long documentId;
 
     @NotEmpty
     private String patientMrn;

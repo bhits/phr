@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @NoArgsConstructor
 public class UploadedDocumentInfoDto {
     @NotEmpty
-    private String documentId;
+    private Long documentId;
 
     @NotEmpty
     private String documentFileName;
@@ -29,7 +29,7 @@ public class UploadedDocumentInfoDto {
     private String documentDescription;
 
 
-    public UploadedDocumentInfoDto(String documentId, String documentFileName, String documentName){
+    public UploadedDocumentInfoDto(Long documentId, String documentFileName, String documentName){
         this.documentId = documentId;
         this.documentFileName = documentFileName;
         this.documentName = documentName;

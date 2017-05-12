@@ -13,7 +13,7 @@ import javax.validation.Valid;
 @Audited
 public class UploadedDocument {
     @Id
-    private String documentId;
+    private Long documentId;
 
     @NotEmpty
     private String patientMrn;
