@@ -1,11 +1,11 @@
 package gov.samhsa.c2s.phr.domain;
 
-public enum ClinicalDocumentContentType {
+public enum UploadedDocumentContentType {
     TEXT_XML ("text/xml");
 
     private final String name;
 
-    ClinicalDocumentContentType(String s) {
+    UploadedDocumentContentType(String s) {
         name = s;
     }
 

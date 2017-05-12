@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Data
 @Audited
-public class ClinicalDocument {
+public class UploadedDocument {
     @Id
     private String documentId;
 
@@ -27,7 +27,7 @@ public class ClinicalDocument {
     private String documentName;
 
     @NotNull
-    private ClinicalDocumentContentType documentContentType;
+    private UploadedDocumentContentType documentContentType;
 
     private String documentDescription;
 }
