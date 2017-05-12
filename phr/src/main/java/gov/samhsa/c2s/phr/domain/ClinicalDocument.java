@@ -13,6 +13,9 @@ import javax.validation.constraints.NotNull;
 public class ClinicalDocument {
     @Id
     private String documentId;
+    
+    @NotNull
+    private String patientMrn;
 
     @NotNull
     private byte[] documentContents;
