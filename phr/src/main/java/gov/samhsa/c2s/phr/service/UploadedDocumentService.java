@@ -18,9 +18,9 @@ public interface UploadedDocumentService {
 
     /**
      * Gets a specific document by document ID
-     *
-     *    This method requires the patient MRN as a parameter in order to confirm
-     *    that the document being retrieved belongs to the specified patient.
+     * <p>
+     * This method requires the patient MRN as a parameter in order to confirm
+     * that the document being retrieved belongs to the specified patient.
      *
      * @param patientMrn - The MRN of the patient whom the queried document belongs to
      * @param documentId - The ID of the document to retrieve
