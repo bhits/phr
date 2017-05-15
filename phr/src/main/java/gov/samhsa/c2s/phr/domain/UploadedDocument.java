@@ -1,7 +1,6 @@
 package gov.samhsa.c2s.phr.domain;
 
 import lombok.Data;
-import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
@@ -12,7 +11,6 @@ import javax.persistence.Lob;
 
 @Entity
 @Data
-@Audited
 public class UploadedDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
