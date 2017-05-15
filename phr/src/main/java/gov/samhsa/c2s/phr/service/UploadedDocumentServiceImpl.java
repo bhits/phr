@@ -2,8 +2,11 @@ package gov.samhsa.c2s.phr.service;
 
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
+import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
+import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
+import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.InvalidPatientForDocumentException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
@@ -82,5 +85,41 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         return uploadedDocumentDto;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(SaveNewUploadedDocumentDto saveNewUploadedDocumentDto) {
+        if(saveNewUploadedDocumentDto == null){
+            log.error("The saveNewUploadedDocumentDto parameter value passed to saveNewPatientDocument method was null");
+            throw new InvalidInputException("The system could not save the uploaded file");
+        }
+
+        // TODO: Check file length is less than or equal to configured maximum file upload size
+
+        // TODO: Check file extension is one of the configured permitted extensions
+
+        // TODO: Check to make sure the patient doesn't already have any saved documents with the same documentName and/or documentFileName
+
+        // TODO: Validate uploaded CCDA/C32 file using document validator service
+
+        UploadedDocument newUploadedDocument = new UploadedDocument();
+        newUploadedDocument.setPatientMrn(saveNewUploadedDocumentDto.getPatientMrn());
+        newUploadedDocument.setDocumentContents(saveNewUploadedDocumentDto.getDocumentContents());
+        newUploadedDocument.setDocumentContentType(saveNewUploadedDocumentDto.getDocumentContentType());
+        newUploadedDocument.setDocumentDescription(saveNewUploadedDocumentDto.getDocumentDescription());
+        newUploadedDocument.setDocumentFileName(saveNewUploadedDocumentDto.getDocumentFileName());
+        newUploadedDocument.setDocumentName(saveNewUploadedDocumentDto.getDocumentName());
+
+        UploadedDocument savedUploadedDocument =  uploadedDocumentRepository.save(newUploadedDocument);
+
+        if(savedUploadedDocument == null){
+            log.error("When the saveNewPatientDocument method invoked the document repository's 'save' method to save a new patient document, the repository's save method returned null instead of the newly saved 'UploadedDocument' entity");
+            throw new DocumentSaveException("An error occurred while attempting to save a new document");
+        }
+
+        return modelMapper.map(savedUploadedDocument, SavedNewUploadedDocumentResponseDto.class);
     }
 }
