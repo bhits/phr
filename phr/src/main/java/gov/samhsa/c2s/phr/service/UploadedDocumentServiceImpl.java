@@ -7,6 +7,7 @@ import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.InvalidPatientForDocumentException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final UploadedDocumentRepository uploadedDocumentRepository;
     private final ModelMapper modelMapper;
@@ -44,9 +46,11 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
                 return uploadedDocumentInfoDtoList;
             }else{
+                log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method");
                 throw new NoDocumentsFoundException("No documents found for specified patient MRN");
             }
         }else{
+            log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
     }
@@ -65,12 +69,15 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
                 if(Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
                     uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
                 }else{
+                    log.error("The document requested in the call to the getPatientDocumentByDocId method (documentId: " + documentId + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
                     throw new InvalidPatientForDocumentException("The document requested does not belong to the patient specified");
                 }
             }else{
+                log.error("No documents were found with the specified document ID: " + documentId);
                 throw new NoDocumentsFoundException("No document found with the specified document ID");
             }
         }else{
+            log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
