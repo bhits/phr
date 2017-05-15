@@ -7,6 +7,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
@@ -15,6 +17,7 @@ import javax.persistence.Lob;
 @Audited
 public class UploadedDocument {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long documentId;
 
     @NotEmpty
