@@ -24,11 +24,4 @@ public class UploadedDocumentInfoDto {
     private String documentContentType;
 
     private String documentDescription;
-
-
-    public UploadedDocumentInfoDto(Long documentId, String documentFileName, String documentName){
-        this.documentId = documentId;
-        this.documentFileName = documentFileName;
-        this.documentName = documentName;
-    }
 }
