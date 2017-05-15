@@ -5,8 +5,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,8 +32,7 @@ public class UploadedDocument {
     private String documentName;
 
     @NotEmpty
-    @Enumerated(EnumType.STRING)
-    private UploadedDocumentContentType documentContentType;
+    private String documentContentType;
 
     private String documentDescription;
 }

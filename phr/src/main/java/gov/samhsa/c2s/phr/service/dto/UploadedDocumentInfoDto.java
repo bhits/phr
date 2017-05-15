@@ -1,13 +1,10 @@
 package gov.samhsa.c2s.phr.service.dto;
 
-import gov.samhsa.c2s.phr.domain.UploadedDocumentContentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.Valid;
 
 @Data
 @Builder
@@ -23,8 +20,8 @@ public class UploadedDocumentInfoDto {
     @NotEmpty
     private String documentName;
 
-    @Valid
-    private UploadedDocumentContentType documentContentType;
+    @NotEmpty
+    private String documentContentType;
 
     private String documentDescription;
 
