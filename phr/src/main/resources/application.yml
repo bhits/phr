@@ -12,6 +12,13 @@ spring:
     url: jdbc:mysql://localhost:3306/phr?autoReconnect=true
     username: root
     password: admin
+c2s:
+  phr:
+    patientDocumentUploads:
+      # Max allowed file size in bytes for clinical document files uploaded to PHR
+      maximumUploadFileSize: 10000000
+      # Comma separated list of permitted file extensions for clinical document files uploaded to PHR
+      extensionsPermittedToUpload: xml,txt
 ---
 spring.profiles: standalone-ssl
 spring:

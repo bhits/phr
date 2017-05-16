@@ -1,5 +1,6 @@
 package gov.samhsa.c2s.phr.service;
 
+import gov.samhsa.c2s.phr.config.PhrProperties;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
@@ -15,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,11 +26,23 @@ import java.util.Objects;
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final UploadedDocumentRepository uploadedDocumentRepository;
     private final ModelMapper modelMapper;
+    private final PhrProperties phrProperties;
+
+    private long maxFileSize;
 
     @Autowired
-    public UploadedDocumentServiceImpl(UploadedDocumentRepository uploadedDocumentRepository, ModelMapper modelMapper) {
+    public UploadedDocumentServiceImpl(UploadedDocumentRepository uploadedDocumentRepository, ModelMapper modelMapper, PhrProperties phrProperties) {
+        super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.modelMapper = modelMapper;
+        this.phrProperties = phrProperties;
+
+        this.maxFileSize = this.phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
+    }
+
+    @PostConstruct
+    public void afterPropertiesSet() throws Exception {
+        this.maxFileSize = phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
     }
 
     /**
