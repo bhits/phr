@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -135,5 +136,18 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         return modelMapper.map(savedUploadedDocument, SavedNewUploadedDocumentResponseDto.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFileOversized(MultipartFile file){
+        if (file.getSize() > maxFileSize){
+            log.warn("Size of uploaded file is " + file.getSize() + " bytes, which is greater than the configured max size of " + maxFileSize + " bytes");
+            return true;
+        }else {
+            return false;
+        }
     }
 }

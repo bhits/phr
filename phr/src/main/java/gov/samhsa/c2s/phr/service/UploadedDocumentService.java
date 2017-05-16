@@ -5,6 +5,7 @@ import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -42,4 +43,12 @@ public interface UploadedDocumentService {
      */
     @Transactional
     SavedNewUploadedDocumentResponseDto saveNewPatientDocument(SaveNewUploadedDocumentDto saveNewUploadedDocumentDto);
+
+    /**
+     * Checks to see if a file's size is over the configured maximum limit in bytes
+     *
+     * @param file - the file whose size is to be checked
+     * @return true if file size is over the max, false if file size is equal to or less than the max
+     */
+    boolean isFileOversized(MultipartFile file);
 }
