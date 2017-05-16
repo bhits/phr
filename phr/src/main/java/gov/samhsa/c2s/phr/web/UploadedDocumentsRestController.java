@@ -62,6 +62,14 @@ public class UploadedDocumentsRestController {
 
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
+        boolean isFileOversized = uploadedDocumentService.isFileOversized(file);
+        if(isFileOversized){
+            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file size was greater than the configured maximum file size" );
+            throw new InvalidInputException("The uploaded file could not be saved because the file size was too large");
+        }
+
+        // TODO: Check file extension is one of the configured permitted extensions
+
         SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
         byte[] uploadedFileBytes;
 

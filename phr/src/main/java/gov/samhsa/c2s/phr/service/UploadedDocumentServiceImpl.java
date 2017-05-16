@@ -112,10 +112,6 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new InvalidInputException("The system could not save the uploaded file");
         }
 
-        // TODO: Check file length is less than or equal to configured maximum file upload size
-
-        // TODO: Check file extension is one of the configured permitted extensions
-
         // TODO: Check to make sure the patient doesn't already have any saved documents with the same documentName and/or documentFileName
 
         // TODO: Validate uploaded CCDA/C32 file using document validator service
