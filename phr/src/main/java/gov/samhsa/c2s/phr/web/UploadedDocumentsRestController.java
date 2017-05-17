@@ -34,11 +34,30 @@ public class UploadedDocumentsRestController {
         this.fileCheckService = fileCheckService;
     }
 
+
+    /**
+     * Gets a list of documents for the specified patient
+     *
+     * @param patientMrn - the MRN of the patient whose list of documents is to be retrieved
+     * @return An List of UploadedDocumentInfoDto objects containing metadata about each of the specified patient's documents
+     * @see UploadedDocumentInfoDto
+     */
     @GetMapping("/patient/{patientMrn}/documentsList")
     public List<UploadedDocumentInfoDto> getPatientDocumentsList(@PathVariable String patientMrn){
         return uploadedDocumentService.getPatientDocumentInfoList(patientMrn);
     }
 
+    /**
+     * Gets a specific document by document ID
+     * <p>
+     * This method requires the patient MRN as a parameter in order to confirm
+     * that the document being retrieved belongs to the specified patient.
+     *
+     * @param patientMrn - the MRN of the patient whose document is to be retrieved
+     * @param documentId - the ID of the document to be retrieved
+     * @return An UploadedDocumentDto object containing the requested document, as well as metadata about the document
+     * @see UploadedDocumentDto
+     */
     @GetMapping("/patient/{patientMrn}/document/{documentId}")
     public UploadedDocumentDto getPatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
         return uploadedDocumentService.getPatientDocumentByDocId(patientMrn, documentId);
@@ -51,7 +70,7 @@ public class UploadedDocumentsRestController {
      * @param file - the file to be saved
      * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the documentFileName)
      * @param documentDescription - An optional description of the file being uploaded
-     * @return An object containing metadata about the newly saved patient document;
+     * @return A SavedNewUploadedDocumentResponseDto object containing metadata about the newly saved patient document;
      *         - if the specified patient already has document saved with the same
      *           documentName, an HTTP 409 - CONFLICT status code will be returned.
      * @see SavedNewUploadedDocumentResponseDto
