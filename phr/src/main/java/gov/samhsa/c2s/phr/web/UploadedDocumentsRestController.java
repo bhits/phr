@@ -70,7 +70,10 @@ public class UploadedDocumentsRestController {
             throw new InvalidInputException("The uploaded file could not be saved because the file size was too large");
         }
 
-        // TODO: Check file extension is one of the configured permitted extensions
+        if(!fileCheckService.isFileExtensionPermitted(file)){
+            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file extension is not a permitted extension type");
+            throw new InvalidInputException("The uploaded file could not be saved because the file extension was not a permitted extension type");
+        }
 
         SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
         byte[] uploadedFileBytes;
