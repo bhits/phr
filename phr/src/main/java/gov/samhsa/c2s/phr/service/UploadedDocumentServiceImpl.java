@@ -15,6 +15,7 @@ import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -130,7 +131,14 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         newUploadedDocument.setDocumentFileName(saveNewUploadedDocumentDto.getDocumentFileName());
         newUploadedDocument.setDocumentName(saveNewUploadedDocumentDto.getDocumentName());
 
-        UploadedDocument savedUploadedDocument =  uploadedDocumentRepository.save(newUploadedDocument);
+        UploadedDocument savedUploadedDocument;
+
+        try {
+            savedUploadedDocument =  uploadedDocumentRepository.save(newUploadedDocument);
+        }catch (DataAccessException e){
+            log.error("A DataAccessException occurred while attempting to save a new uploaded patient document in UploadedDocumentServiceImpl.saveNewPatientDocument method");
+            throw new DocumentSaveException("An error occurred while attempting to save a new document");
+        }
 
         if(savedUploadedDocument == null){
             log.error("When the saveNewPatientDocument method invoked the document repository's 'save' method to save a new patient document, the repository's save method returned null instead of the newly saved 'UploadedDocument' entity");
