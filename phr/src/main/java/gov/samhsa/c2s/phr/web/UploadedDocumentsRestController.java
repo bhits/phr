@@ -1,5 +1,6 @@
 package gov.samhsa.c2s.phr.web;
 
+import gov.samhsa.c2s.phr.service.FileCheckService;
 import gov.samhsa.c2s.phr.service.UploadedDocumentService;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
@@ -25,10 +26,12 @@ import java.util.List;
 @RequestMapping("/uploadedDocuments")
 public class UploadedDocumentsRestController {
     private final UploadedDocumentService uploadedDocumentService;
+    private final FileCheckService fileCheckService;
 
     @Autowired
-    public UploadedDocumentsRestController(UploadedDocumentService uploadedDocumentService) {
+    public UploadedDocumentsRestController(UploadedDocumentService uploadedDocumentService, FileCheckService fileCheckService) {
         this.uploadedDocumentService = uploadedDocumentService;
+        this.fileCheckService = fileCheckService;
     }
 
     @GetMapping("/patient/{patientMrn}/documentsList")
@@ -61,7 +64,7 @@ public class UploadedDocumentsRestController {
 
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
-        boolean isFileOversized = uploadedDocumentService.isFileOversized(file);
+        boolean isFileOversized = fileCheckService.isFileOversized(file);
         if(isFileOversized){
             log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file size was greater than the configured maximum file size" );
             throw new InvalidInputException("The uploaded file could not be saved because the file size was too large");

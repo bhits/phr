@@ -1,6 +1,5 @@
 package gov.samhsa.c2s.phr.service;
 
-import gov.samhsa.c2s.phr.config.PhrProperties;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
@@ -16,9 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,23 +25,12 @@ import java.util.Objects;
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final UploadedDocumentRepository uploadedDocumentRepository;
     private final ModelMapper modelMapper;
-    private final PhrProperties phrProperties;
-
-    private long maxFileSize;
 
     @Autowired
-    public UploadedDocumentServiceImpl(UploadedDocumentRepository uploadedDocumentRepository, ModelMapper modelMapper, PhrProperties phrProperties) {
+    public UploadedDocumentServiceImpl(UploadedDocumentRepository uploadedDocumentRepository, ModelMapper modelMapper) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.modelMapper = modelMapper;
-        this.phrProperties = phrProperties;
-
-        this.maxFileSize = this.phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
-    }
-
-    @PostConstruct
-    public void afterPropertiesSet() throws Exception {
-        this.maxFileSize = phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
     }
 
     /**
@@ -145,19 +131,6 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         return modelMapper.map(savedUploadedDocument, SavedNewUploadedDocumentResponseDto.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isFileOversized(MultipartFile file){
-        if (file.getSize() > maxFileSize){
-            log.warn("Size of uploaded file is " + file.getSize() + " bytes, which is greater than the configured max size of " + maxFileSize + " bytes");
-            return true;
-        }else {
-            return false;
-        }
     }
 
     /**
