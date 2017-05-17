@@ -10,7 +10,6 @@ import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
-import gov.samhsa.c2s.phr.service.exception.InvalidPatientForDocumentException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -90,7 +89,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
                     uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
                 }else{
                     log.error("The document requested in the call to the getPatientDocumentByDocId method (documentId: " + documentId + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
-                    throw new InvalidPatientForDocumentException("The document requested does not belong to the patient specified");
+                    throw new NoDocumentsFoundException("No document found with the specified document ID");
                 }
             }else{
                 log.error("No documents were found with the specified document ID: " + documentId);
