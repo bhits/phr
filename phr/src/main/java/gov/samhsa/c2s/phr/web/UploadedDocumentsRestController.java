@@ -100,7 +100,7 @@ public class UploadedDocumentsRestController {
             uploadedFileBytes = file.getBytes();
         }catch (IOException e){
             log.error("An IOException occurred while invoking file.getBytes from inside the saveNewPatientDocument controller method", e);
-            throw new DocumentSaveException("An error occurred while attempting to save a new document", e);
+            throw new DocumentSaveException("An error occurred while attempting to save a new document");
         }
 
         if(uploadedFileBytes.length <= 0){
