@@ -121,7 +121,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         try {
             savedUploadedDocument =  uploadedDocumentRepository.save(newUploadedDocument);
         }catch (DataAccessException e){
-            log.error("A DataAccessException occurred while attempting to save a new uploaded patient document in UploadedDocumentServiceImpl.saveNewPatientDocument method");
+            log.error("A DataAccessException occurred while attempting to save a new uploaded patient document in UploadedDocumentServiceImpl.saveNewPatientDocument method", e);
             throw new DocumentSaveException("An error occurred while attempting to save a new document");
         }
 
