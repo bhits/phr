@@ -10,6 +10,7 @@ import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -111,6 +112,20 @@ public class UploadedDocumentsRestController {
         saveNewUploadedDocumentDto = new SaveNewUploadedDocumentDto(patientMrn, uploadedFileBytes, file.getOriginalFilename(), documentName, file.getContentType(), documentDescription);
 
         return uploadedDocumentService.saveNewPatientDocument(saveNewUploadedDocumentDto);
+    }
+
+    /**
+     * Deletes a document by document ID
+     * <p>
+     * This method requires the patient MRN as a parameter in order to confirm
+     * that the document being deleted belongs to the specified patient.
+     *
+     * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
+     * @param documentId - The ID of the document to delete
+     */
+    @DeleteMapping("/patient/{patientMrn}/document/{documentId}")
+    public void deletePatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
+        uploadedDocumentService.deletePatientDocument(patientMrn, documentId);
     }
 
 }

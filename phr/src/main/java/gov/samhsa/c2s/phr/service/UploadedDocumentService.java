@@ -48,4 +48,16 @@ public interface UploadedDocumentService {
      */
     @Transactional
     SavedNewUploadedDocumentResponseDto saveNewPatientDocument(SaveNewUploadedDocumentDto saveNewUploadedDocumentDto);
+
+    /**
+     * Deletes a document by document ID
+     * <p>
+     * This method requires the patient MRN as a parameter in order to confirm
+     * that the document being deleted belongs to the specified patient.
+     *
+     * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
+     * @param documentId - The ID of the document to delete
+     */
+    @Transactional
+    void deletePatientDocument(String patientMrn, Long documentId);
 }

@@ -6,6 +6,7 @@ import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
+import gov.samhsa.c2s.phr.service.exception.DocumentDeleteException;
 import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
@@ -132,6 +133,42 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         return modelMapper.map(savedUploadedDocument, SavedNewUploadedDocumentResponseDto.class);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deletePatientDocument(String patientMrn, Long documentId){
+        if((patientMrn == null) || (patientMrn.length() <= 0)){
+            log.error("The patientMrn value passed to the deletePatientDocument method was null or empty");
+            throw new InvalidInputException("Patient MRN cannot be null or empty");
+        }
+
+        if((documentId == null) || (documentId < 0)){
+            log.error("The documentId value passed to the deletePatientDocument method was null or a negative number");
+            throw new InvalidInputException("Document ID cannot be null or a negative number");
+        }
+
+        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(documentId);
+
+        if(uploadedDocument == null){
+            log.error("No documents were found with the specified document ID: " + documentId);
+            throw new NoDocumentsFoundException("No document found with the specified document ID");
+        }
+
+        if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
+            log.error("The document requested in the call to the deletePatientDocument method (documentId: " + documentId + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+            throw new NoDocumentsFoundException("No document found with the specified document ID");
+        }
+
+        try {
+            uploadedDocumentRepository.delete(uploadedDocument);
+        }catch (DataAccessException e){
+            log.error("A DataAccessException occurred while attempting to delete a patient document in UploadedDocumentServiceImpl.deletePatientDocument method", e);
+            throw new DocumentDeleteException("An error occurred while attempting to delete a document");
+        }
+    }
+
 
     /**
      * Checks to see if the specified patient has any existing uploaded documents with the
