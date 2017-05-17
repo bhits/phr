@@ -35,6 +35,12 @@ public interface UploadedDocumentService {
 
     /**
      * Saves new uploaded patient document file
+     * <p>
+     * If the specified patient already has document saved with the same
+     * documentName, a DocumentNameExistsException will be thrown, which
+     * will trigger a 409 - CONFLICT HTTP status code response to be sent
+     * back to the client.
+     * @see gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException
      *
      * @param saveNewUploadedDocumentDto - An object containing the uploaded file to be saved, as well as metadata about the file
      * @see SaveNewUploadedDocumentDto

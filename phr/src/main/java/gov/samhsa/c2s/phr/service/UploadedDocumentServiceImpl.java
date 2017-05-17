@@ -7,6 +7,7 @@ import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
+import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.InvalidPatientForDocumentException;
@@ -112,7 +113,12 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new InvalidInputException("The system could not save the uploaded file");
         }
 
-        // TODO: Check to make sure the patient doesn't already have any saved documents with the same documentName and/or documentFileName
+        String newDocumentName = saveNewUploadedDocumentDto.getDocumentName();
+
+        if(isDocumentNameDuplicateForPatient(newDocumentName, saveNewUploadedDocumentDto.getPatientMrn())){
+            log.info("A patient tried to upload a document with document name '" + newDocumentName + "', however the patient already has an uploaded document with that document name.");
+            throw new DocumentNameExistsException("The specified patient already has a document with the same document name");
+        }
 
         // TODO: Validate uploaded CCDA/C32 file using document validator service
 
@@ -145,5 +151,19 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }else {
             return false;
         }
+    }
+
+    /**
+     * Checks to see if the specified patient has any existing uploaded documents with the
+     * same document name as newDocumentName string passed into this method as a parameter
+     *
+     * @param newDocumentName - The document name to check for duplicates
+     * @param patientMrn - The MRN of the patient whose documents should be checked for duplicate document names
+     * @return true if duplicate(s) found; false if no duplicates found
+     */
+    private boolean isDocumentNameDuplicateForPatient(String newDocumentName, String patientMrn){
+        List<UploadedDocument> patientUploadedDocuments = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
+        return patientUploadedDocuments.stream()
+                .anyMatch(doc -> doc.getDocumentName().equals(newDocumentName));
     }
 }

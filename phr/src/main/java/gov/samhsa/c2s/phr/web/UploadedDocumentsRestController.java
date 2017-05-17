@@ -50,8 +50,7 @@ public class UploadedDocumentsRestController {
      * @param documentDescription - An optional description of the file being uploaded
      * @return An object containing metadata about the newly saved patient document;
      *         - if the specified patient already has document saved with the same
-     *           documentName and/or documentFileName, an HTTP 409 - CONFLICT status
-     *           code will be returned.
+     *           documentName, an HTTP 409 - CONFLICT status code will be returned.
      * @see SavedNewUploadedDocumentResponseDto
      */
     @PostMapping("/patient/{patientMrn}/document")
