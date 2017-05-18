@@ -88,6 +88,7 @@ public class UploadedDocumentsRestController {
      * @param file - the file to be saved
      * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the documentFileName)
      * @param documentDescription - An optional description of the file being uploaded
+     * @param documentTypeCodeId - The document type
      * @return A SavedNewUploadedDocumentResponseDto object containing metadata about the newly saved patient document;
      *         - if the specified patient already has document saved with the same
      *           documentName, an HTTP 409 - CONFLICT status code will be returned.
@@ -97,7 +98,8 @@ public class UploadedDocumentsRestController {
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(@PathVariable String patientMrn,
                                                                       @RequestParam("file") MultipartFile file,
                                                                       @RequestParam("documentName") String documentName,
-                                                                      @RequestParam("documentDescription") String documentDescription){
+                                                                      @RequestParam("documentDescription") String documentDescription,
+                                                                      @RequestParam("documentTypeCodeId") Long documentTypeCodeId){
 
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
@@ -126,7 +128,7 @@ public class UploadedDocumentsRestController {
             throw new InvalidInputException("The uploaded file was empty");
         }
 
-        saveNewUploadedDocumentDto = new SaveNewUploadedDocumentDto(patientMrn, uploadedFileBytes, file.getOriginalFilename(), documentName, file.getContentType(), documentDescription);
+        saveNewUploadedDocumentDto = new SaveNewUploadedDocumentDto(patientMrn, uploadedFileBytes, file.getOriginalFilename(), documentName, file.getContentType(), documentDescription, documentTypeCodeId);
 
         return uploadedDocumentService.saveNewPatientDocument(saveNewUploadedDocumentDto);
     }

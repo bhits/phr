@@ -24,4 +24,10 @@ public class UploadedDocumentInfoDto {
     private String documentContentType;
 
     private String documentDescription;
+
+    @NotEmpty
+    private Long documentTypeCodeId;
+
+    @NotEmpty
+    private String documentTypeDisplayName;
 }

@@ -25,4 +25,7 @@ public class SaveNewUploadedDocumentDto {
     private String documentContentType;
 
     private String documentDescription;
+
+    @NotEmpty
+    private Long documentTypeCodeId;
 }

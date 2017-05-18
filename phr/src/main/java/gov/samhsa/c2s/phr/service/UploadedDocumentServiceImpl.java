@@ -1,5 +1,6 @@
 package gov.samhsa.c2s.phr.service;
 
+import gov.samhsa.c2s.phr.domain.DocumentTypeCode;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
@@ -9,6 +10,7 @@ import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.DocumentDeleteException;
 import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
+import gov.samhsa.c2s.phr.service.exception.DocumentTypeCodeNotFoundException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +27,17 @@ import java.util.Objects;
 @Slf4j
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final UploadedDocumentRepository uploadedDocumentRepository;
+    private final DocumentTypeCodeService documentTypeCodeService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public UploadedDocumentServiceImpl(UploadedDocumentRepository uploadedDocumentRepository, ModelMapper modelMapper) {
+    public UploadedDocumentServiceImpl(
+            UploadedDocumentRepository uploadedDocumentRepository,
+            DocumentTypeCodeService documentTypeCodeService,
+            ModelMapper modelMapper) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
+        this.documentTypeCodeService = documentTypeCodeService;
         this.modelMapper = modelMapper;
     }
 
@@ -109,6 +116,14 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         // TODO: Validate uploaded CCDA/C32 file using document validator service
 
+        DocumentTypeCode documentTypeCode;
+        try{
+            documentTypeCode = documentTypeCodeService.getDocumentTypeCodeById(saveNewUploadedDocumentDto.getDocumentTypeCodeId());
+        }catch(DocumentTypeCodeNotFoundException e){
+            log.error("The saveNewUploadedDocumentDto.documentTypeCodeId parameter value passed to saveNewPatientDocument method was not a valid document type code ID", e);
+            throw new InvalidInputException("The system could not save the uploaded file");
+        }
+
         UploadedDocument newUploadedDocument = new UploadedDocument();
         newUploadedDocument.setPatientMrn(saveNewUploadedDocumentDto.getPatientMrn());
         newUploadedDocument.setDocumentContents(saveNewUploadedDocumentDto.getDocumentContents());
@@ -116,6 +131,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         newUploadedDocument.setDocumentDescription(saveNewUploadedDocumentDto.getDocumentDescription());
         newUploadedDocument.setDocumentFileName(saveNewUploadedDocumentDto.getDocumentFileName());
         newUploadedDocument.setDocumentName(saveNewUploadedDocumentDto.getDocumentName());
+        newUploadedDocument.setDocumentTypeCode(documentTypeCode);
 
         UploadedDocument savedUploadedDocument;
 
