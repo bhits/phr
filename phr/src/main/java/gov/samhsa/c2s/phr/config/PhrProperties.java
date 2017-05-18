@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Configuration
@@ -28,9 +27,6 @@ public class PhrProperties {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PatientDocumentUploads {
-        @Min(0)
-        private long maximumUploadFileSize;
-
         @NotEmpty
         private String extensionsPermittedToUpload;
     }

@@ -18,7 +18,6 @@ public class FileCheckServiceImpl implements FileCheckService {
 
     private final PhrProperties phrProperties;
 
-    private long maxFileSize;
     private String permittedExtensions;
     private List<String> permittedExtensionsList;
 
@@ -26,29 +25,14 @@ public class FileCheckServiceImpl implements FileCheckService {
     public FileCheckServiceImpl(PhrProperties phrProperties) {
         this.phrProperties = phrProperties;
 
-        this.maxFileSize = phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
         this.permittedExtensions = phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload().toLowerCase();
     }
 
     @PostConstruct
     public void afterPropertiesSet() throws Exception {
-        this.maxFileSize = phrProperties.getPatientDocumentUploads().getMaximumUploadFileSize();
         this.permittedExtensions = phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload().toLowerCase();
 
         this.permittedExtensionsList = Arrays.asList(permittedExtensions.split(PERMITTED_EXTENSIONS_DELIMITER));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isFileOversized(MultipartFile file){
-        if (file.getSize() > maxFileSize){
-            log.warn("Size of uploaded file is " + file.getSize() + " bytes, which is greater than the configured max size of " + maxFileSize + " bytes");
-            return true;
-        }else {
-            return false;
-        }
     }
 
     /**
