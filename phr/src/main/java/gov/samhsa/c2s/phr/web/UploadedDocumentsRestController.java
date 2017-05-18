@@ -62,7 +62,10 @@ public class UploadedDocumentsRestController {
      * Gets a specific document by document ID
      * <p>
      * This method requires the patient MRN as a parameter in order to confirm
-     * that the document being retrieved belongs to the specified patient.
+     * that the document being retrieved belongs to the specified patient. If the
+     * document requested doesn't belong to the patient passed as the MRN param,
+     * then this method will return an HTTP 404 - NOT FOUND status code.
+     * @see gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException
      *
      * @param patientMrn - the MRN of the patient whose document is to be retrieved
      * @param documentId - the ID of the document to be retrieved
@@ -113,7 +116,10 @@ public class UploadedDocumentsRestController {
      * Deletes a document by document ID
      * <p>
      * This method requires the patient MRN as a parameter in order to confirm
-     * that the document being deleted belongs to the specified patient.
+     * that the document being deleted belongs to the specified patient. If the
+     * document to be deleted doesn't belong to the patient passed as the MRN
+     * param, then this method will return an HTTP 404 - NOT FOUND status code.
+     * @see gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException
      *
      * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
      * @param documentId - The ID of the document to delete
