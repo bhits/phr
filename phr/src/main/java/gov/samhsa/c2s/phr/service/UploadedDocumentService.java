@@ -5,7 +5,9 @@ import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UploadedDocumentService {
@@ -60,4 +62,24 @@ public interface UploadedDocumentService {
      */
     @Transactional
     void deletePatientDocument(String patientMrn, Long documentId);
+
+    /**
+     * Generates a SaveNewUploadedDocumentDto object to be used to save an uploaded document
+     *
+     * @param patientMrn - the MRN of the patient for whom the uploaded file belongs to
+     * @param file - the file to be save
+     * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the fileName)
+     * @param description - An optional description of the file being uploaded
+     * @param documentTypeCodeId - The document type
+     * @return A SaveNewUploadedDocumentDto object containing the file and associated metadata to be saved
+     * @see SaveNewUploadedDocumentDto
+     * @throws IOException - Thrown if an IOException occurs while trying to extract the file bytes from the file object
+     */
+    SaveNewUploadedDocumentDto generateSaveDtoForDoc(
+            String patientMrn,
+            MultipartFile file,
+            String documentName,
+            String description,
+            Long documentTypeCodeId
+    ) throws IOException;
 }

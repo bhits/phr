@@ -18,7 +18,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,16 +30,19 @@ import java.util.Objects;
 public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final UploadedDocumentRepository uploadedDocumentRepository;
     private final DocumentTypeCodeService documentTypeCodeService;
+    private final FileCheckService fileCheckService;
     private final ModelMapper modelMapper;
 
     @Autowired
     public UploadedDocumentServiceImpl(
             UploadedDocumentRepository uploadedDocumentRepository,
             DocumentTypeCodeService documentTypeCodeService,
+            FileCheckService fileCheckService,
             ModelMapper modelMapper) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.documentTypeCodeService = documentTypeCodeService;
+        this.fileCheckService = fileCheckService;
         this.modelMapper = modelMapper;
     }
 
@@ -183,6 +188,31 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             log.error("A DataAccessException occurred while attempting to delete a patient document in UploadedDocumentServiceImpl.deletePatientDocument method", e);
             throw new DocumentDeleteException("An error occurred while attempting to delete a document");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SaveNewUploadedDocumentDto generateSaveDtoForDoc(
+            String patientMrn,
+            MultipartFile file,
+            String documentName,
+            String description,
+            Long documentTypeCodeId
+    ) throws IOException{
+        if(!fileCheckService.isFileExtensionPermitted(file)){
+            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file extension is not a permitted extension type");
+            throw new InvalidInputException("The uploaded file could not be saved because the file extension was not a permitted extension type");
+        }
+
+        byte[] uploadedFileBytes = file.getBytes();
+
+        if(uploadedFileBytes.length <= 0){
+            log.error("The byte array extracted from the uploaded MultipartFile object was empty (uploadedFileBytes.length: " + uploadedFileBytes.length + ")");
+            throw new InvalidInputException("The uploaded file was empty");
+        }
+
+        return new SaveNewUploadedDocumentDto(patientMrn, uploadedFileBytes, file.getOriginalFilename(), documentName, file.getContentType(), description, documentTypeCodeId);
     }
 
 

@@ -1,7 +1,6 @@
 package gov.samhsa.c2s.phr.web;
 
 import gov.samhsa.c2s.phr.service.DocumentTypeCodeService;
-import gov.samhsa.c2s.phr.service.FileCheckService;
 import gov.samhsa.c2s.phr.service.UploadedDocumentService;
 import gov.samhsa.c2s.phr.service.dto.DocumentTypeCodeDto;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
@@ -9,7 +8,6 @@ import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
-import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,16 +28,11 @@ import java.util.List;
 public class UploadedDocumentsRestController {
     private final UploadedDocumentService uploadedDocumentService;
     private final DocumentTypeCodeService documentTypeCodeService;
-    private final FileCheckService fileCheckService;
 
     @Autowired
-    public UploadedDocumentsRestController(
-            UploadedDocumentService uploadedDocumentService,
-            DocumentTypeCodeService documentTypeCodeService,
-            FileCheckService fileCheckService){
+    public UploadedDocumentsRestController(UploadedDocumentService uploadedDocumentService, DocumentTypeCodeService documentTypeCodeService){
         this.uploadedDocumentService = uploadedDocumentService;
         this.documentTypeCodeService = documentTypeCodeService;
-        this.fileCheckService = fileCheckService;
     }
 
     /**
@@ -95,35 +88,23 @@ public class UploadedDocumentsRestController {
      * @see SavedNewUploadedDocumentResponseDto
      */
     @PostMapping("/patient/{patientMrn}/document")
-    public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(@PathVariable String patientMrn,
-                                                                      @RequestParam("file") MultipartFile file,
-                                                                      @RequestParam("documentName") String documentName,
-                                                                      @RequestParam("description") String description,
-                                                                      @RequestParam("documentTypeCodeId") Long documentTypeCodeId){
-
+    public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(
+            @PathVariable String patientMrn,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("documentName") String documentName,
+            @RequestParam("description") String description,
+            @RequestParam("documentTypeCodeId") Long documentTypeCodeId
+    ){
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
-        if(!fileCheckService.isFileExtensionPermitted(file)){
-            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file extension is not a permitted extension type");
-            throw new InvalidInputException("The uploaded file could not be saved because the file extension was not a permitted extension type");
-        }
-
         SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
-        byte[] uploadedFileBytes;
 
         try{
-            uploadedFileBytes = file.getBytes();
+            saveNewUploadedDocumentDto = uploadedDocumentService.generateSaveDtoForDoc(patientMrn, file, documentName, description, documentTypeCodeId);
         }catch (IOException e){
-            log.error("An IOException occurred while invoking file.getBytes from inside the saveNewPatientDocument controller method", e);
+            log.error("An IOException occurred while invoking UploadedDocumentService.generateSaveDtoForDoc from inside the saveNewPatientDocument controller method", e);
             throw new DocumentSaveException("An error occurred while attempting to save a new document");
         }
-
-        if(uploadedFileBytes.length <= 0){
-            log.error("The byte array extracted from the uploaded MultipartFile object was empty (uploadedFileBytes.length: " + uploadedFileBytes.length + ")");
-            throw new InvalidInputException("The uploaded file was empty");
-        }
-
-        saveNewUploadedDocumentDto = new SaveNewUploadedDocumentDto(patientMrn, uploadedFileBytes, file.getOriginalFilename(), documentName, file.getContentType(), description, documentTypeCodeId);
 
         return uploadedDocumentService.saveNewPatientDocument(saveNewUploadedDocumentDto);
     }
