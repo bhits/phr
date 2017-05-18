@@ -1,7 +1,9 @@
 package gov.samhsa.c2s.phr.web;
 
+import gov.samhsa.c2s.phr.service.DocumentTypeCodeService;
 import gov.samhsa.c2s.phr.service.FileCheckService;
 import gov.samhsa.c2s.phr.service.UploadedDocumentService;
+import gov.samhsa.c2s.phr.service.dto.DocumentTypeCodeDto;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
@@ -27,14 +29,29 @@ import java.util.List;
 @RequestMapping("/uploadedDocuments")
 public class UploadedDocumentsRestController {
     private final UploadedDocumentService uploadedDocumentService;
+    private final DocumentTypeCodeService documentTypeCodeService;
     private final FileCheckService fileCheckService;
 
     @Autowired
-    public UploadedDocumentsRestController(UploadedDocumentService uploadedDocumentService, FileCheckService fileCheckService) {
+    public UploadedDocumentsRestController(
+            UploadedDocumentService uploadedDocumentService,
+            DocumentTypeCodeService documentTypeCodeService,
+            FileCheckService fileCheckService){
         this.uploadedDocumentService = uploadedDocumentService;
+        this.documentTypeCodeService = documentTypeCodeService;
         this.fileCheckService = fileCheckService;
     }
 
+    /**
+     * Gets a list of all document type codes
+     *
+     * @return A List of all document type code DTOs
+     * @see DocumentTypeCodeDto
+     */
+    @GetMapping("/documentTypeCodes")
+    public List<DocumentTypeCodeDto> getAllDocumentTypeCodesList(){
+        return documentTypeCodeService.getAllDocumentTypeCodes();
+    }
 
     /**
      * Gets a list of documents for the specified patient
