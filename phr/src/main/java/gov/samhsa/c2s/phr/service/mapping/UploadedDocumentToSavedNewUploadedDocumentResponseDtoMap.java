@@ -10,10 +10,10 @@ public class UploadedDocumentToSavedNewUploadedDocumentResponseDtoMap extends Pr
     @Override
     protected void configure() {
         map().setDocumentId(source.getDocumentId());
-        map().setDocumentFileName(source.getDocumentFileName());
+        map().setFileName(source.getFileName());
         map().setDocumentName(source.getDocumentName());
-        map().setDocumentContentType(source.getDocumentContentType());
-        map().setDocumentDescription(source.getDocumentDescription());
+        map().setContentType(source.getContentType());
+        map().setDescription(source.getDescription());
         map().setDocumentTypeCodeId(source.getDocumentTypeCode().getId());
         map().setDocumentTypeDisplayName(source.getDocumentTypeCode().getDisplayName());
     }

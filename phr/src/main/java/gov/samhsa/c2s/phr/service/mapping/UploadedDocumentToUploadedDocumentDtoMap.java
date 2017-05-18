@@ -10,11 +10,11 @@ public class UploadedDocumentToUploadedDocumentDtoMap extends PropertyMap<Upload
     @Override
     protected void configure() {
         map().setDocumentId(source.getDocumentId());
-        map().setDocumentFileName(source.getDocumentFileName());
+        map().setFileName(source.getFileName());
         map().setDocumentName(source.getDocumentName());
-        map().setDocumentContentType(source.getDocumentContentType());
-        map().setDocumentDescription(source.getDocumentDescription());
-        map().setDocumentContents(source.getDocumentContents());
+        map().setContentType(source.getContentType());
+        map().setDescription(source.getDescription());
+        map().setContents(source.getContents());
         map().setPatientMrn(source.getPatientMrn());
         map().setDocumentTypeCodeId(source.getDocumentTypeCode().getId());
         map().setDocumentTypeDisplayName(source.getDocumentTypeCode().getDisplayName());

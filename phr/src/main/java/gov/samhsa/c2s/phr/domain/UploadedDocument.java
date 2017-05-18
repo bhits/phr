@@ -26,18 +26,18 @@ public class UploadedDocument {
 
     @Lob
     @NotEmpty
-    private byte[] documentContents;
+    private byte[] contents;
 
     @NotEmpty
-    private String documentFileName;
+    private String fileName;
 
     @NotEmpty
     private String documentName;
 
     @NotEmpty
-    private String documentContentType;
+    private String contentType;
 
-    private String documentDescription;
+    private String description;
 
     @NotNull
     @ManyToOne

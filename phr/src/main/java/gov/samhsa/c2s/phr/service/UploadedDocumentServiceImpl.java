@@ -126,10 +126,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         UploadedDocument newUploadedDocument = new UploadedDocument();
         newUploadedDocument.setPatientMrn(saveNewUploadedDocumentDto.getPatientMrn());
-        newUploadedDocument.setDocumentContents(saveNewUploadedDocumentDto.getDocumentContents());
-        newUploadedDocument.setDocumentContentType(saveNewUploadedDocumentDto.getDocumentContentType());
-        newUploadedDocument.setDocumentDescription(saveNewUploadedDocumentDto.getDocumentDescription());
-        newUploadedDocument.setDocumentFileName(saveNewUploadedDocumentDto.getDocumentFileName());
+        newUploadedDocument.setContents(saveNewUploadedDocumentDto.getContents());
+        newUploadedDocument.setContentType(saveNewUploadedDocumentDto.getContentType());
+        newUploadedDocument.setDescription(saveNewUploadedDocumentDto.getDescription());
+        newUploadedDocument.setFileName(saveNewUploadedDocumentDto.getFileName());
         newUploadedDocument.setDocumentName(saveNewUploadedDocumentDto.getDocumentName());
         newUploadedDocument.setDocumentTypeCode(documentTypeCode);
 
