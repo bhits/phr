@@ -18,8 +18,10 @@ spring:
 c2s:
   phr:
     patientDocumentUploads:
-      # Comma separated list of permitted file extensions for clinical document files uploaded to PHR
-      extensionsPermittedToUpload: xml,txt
+      # List of permitted file extensions for clinical document files uploaded to PHR
+      extensionsPermittedToUpload:
+        - xml
+        - txt
 ---
 spring.profiles: standalone-ssl
 spring:

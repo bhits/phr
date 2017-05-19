@@ -7,18 +7,20 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @ConfigurationProperties(prefix = "c2s.phr")
+@Validated
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PhrProperties {
-    @NotNull
     @Valid
     private PatientDocumentUploads patientDocumentUploads;
 
@@ -28,6 +30,10 @@ public class PhrProperties {
     @NoArgsConstructor
     public static class PatientDocumentUploads {
         @NotEmpty
-        private String extensionsPermittedToUpload;
+        private List<String> extensionsPermittedToUpload = new ArrayList<>();
+
+        public List<String> getExtensionsPermittedToUpload() {
+            return extensionsPermittedToUpload;
+        }
     }
 }

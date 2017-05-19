@@ -7,32 +7,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Slf4j
 public class FileCheckServiceImpl implements FileCheckService {
-    private static final String PERMITTED_EXTENSIONS_DELIMITER = ",";
     private static final String FILE_EXTENSION_DELIMITER = ".";
 
     private final PhrProperties phrProperties;
 
-    private String permittedExtensions;
     private List<String> permittedExtensionsList;
 
     @Autowired
     public FileCheckServiceImpl(PhrProperties phrProperties) {
         this.phrProperties = phrProperties;
-
-        this.permittedExtensions = phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload().toLowerCase();
+        this.permittedExtensionsList = this.phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload();
     }
 
     @PostConstruct
     public void afterPropertiesSet() throws Exception {
-        this.permittedExtensions = phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload().toLowerCase();
-
-        this.permittedExtensionsList = Arrays.asList(permittedExtensions.split(PERMITTED_EXTENSIONS_DELIMITER));
+        this.permittedExtensionsList = this.phrProperties.getPatientDocumentUploads().getExtensionsPermittedToUpload();
     }
 
     /**
