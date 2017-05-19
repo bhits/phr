@@ -51,26 +51,26 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      */
     @Override
     public List<UploadedDocumentInfoDto> getPatientDocumentInfoList(String patientMrn) {
-        if((patientMrn != null) && (patientMrn.length() > 0)){
-            List<UploadedDocument> uploadedPatientDocumentsList = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
-
-            if(uploadedPatientDocumentsList.size() > 0){
-                List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = new ArrayList<>();
-
-                uploadedPatientDocumentsList.forEach(uploadedDocument -> {
-                    UploadedDocumentInfoDto uploadedDocumentInfoDto = modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class);
-                    uploadedDocumentInfoDtoList.add(uploadedDocumentInfoDto);
-                });
-
-                return uploadedDocumentInfoDtoList;
-            }else{
-                log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method");
-                throw new NoDocumentsFoundException("No documents found for specified patient MRN");
-            }
-        }else{
+        if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
+
+        List<UploadedDocument> uploadedPatientDocumentsList = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
+
+        if(uploadedPatientDocumentsList.size() <= 0){
+            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method");
+            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
+        }
+
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = new ArrayList<>();
+
+        uploadedPatientDocumentsList.forEach(uploadedDocument -> {
+            UploadedDocumentInfoDto uploadedDocumentInfoDto = modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class);
+            uploadedDocumentInfoDtoList.add(uploadedDocumentInfoDto);
+        });
+
+        return uploadedDocumentInfoDtoList;
     }
 
     /**
