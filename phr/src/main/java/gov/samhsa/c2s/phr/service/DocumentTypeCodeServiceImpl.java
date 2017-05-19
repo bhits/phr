@@ -42,13 +42,9 @@ public class DocumentTypeCodeServiceImpl implements DocumentTypeCodeService {
      */
     @Override
     public DocumentTypeCode getDocumentTypeCodeById(Long id) throws DocumentTypeCodeNotFoundException {
-        DocumentTypeCode documentTypeCode = documentTypeCodeRepository.findOne(id);
-
-        if(documentTypeCode == null){
+        return documentTypeCodeRepository.findOneById(id).orElseThrow(() -> {
             log.warn("No document type code found with id: " + id);
-            throw new DocumentTypeCodeNotFoundException("No document type code found with specified id");
-        }
-
-        return documentTypeCode;
+            return new DocumentTypeCodeNotFoundException("No document type code found with specified id");
+        });
     }
 }
