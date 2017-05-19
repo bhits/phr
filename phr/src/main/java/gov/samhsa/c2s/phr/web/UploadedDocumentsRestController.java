@@ -53,7 +53,7 @@ public class UploadedDocumentsRestController {
      * @return An List of UploadedDocumentInfoDto objects containing metadata about each of the specified patient's documents
      * @see UploadedDocumentInfoDto
      */
-    @GetMapping("/patient/{patientMrn}/documentsList")
+    @GetMapping("/patients/{patientMrn}/documents")
     public List<UploadedDocumentInfoDto> getPatientDocumentsList(@PathVariable String patientMrn){
         return uploadedDocumentService.getPatientDocumentInfoList(patientMrn);
     }
@@ -72,7 +72,7 @@ public class UploadedDocumentsRestController {
      * @return An UploadedDocumentDto object containing the requested document, as well as metadata about the document
      * @see UploadedDocumentDto
      */
-    @GetMapping("/patient/{patientMrn}/document/{documentId}")
+    @GetMapping("/patients/{patientMrn}/documents/{documentId}")
     public UploadedDocumentDto getPatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
         return uploadedDocumentService.getPatientDocumentByDocId(patientMrn, documentId);
     }
@@ -90,7 +90,7 @@ public class UploadedDocumentsRestController {
      *           documentName, an HTTP 409 - CONFLICT status code will be returned.
      * @see SavedNewUploadedDocumentResponseDto
      */
-    @PostMapping("/patient/{patientMrn}/document")
+    @PostMapping("/patients/{patientMrn}/documents")
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(
             @PathVariable String patientMrn,
             @RequestParam("file") MultipartFile file,
@@ -124,7 +124,7 @@ public class UploadedDocumentsRestController {
      * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
      * @param documentId - The ID of the document to delete
      */
-    @DeleteMapping("/patient/{patientMrn}/document/{documentId}")
+    @DeleteMapping("/patients/{patientMrn}/documents/{documentId}")
     public void deletePatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
         uploadedDocumentService.deletePatientDocument(patientMrn, documentId);
     }
