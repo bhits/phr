@@ -83,12 +83,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
-
-        if(uploadedDocument == null){
+        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
             log.error("No documents were found with the specified document ID: " + id);
-            throw new NoDocumentsFoundException("No document found with the specified document ID");
-        }
+            return new NoDocumentsFoundException("No document found with the specified document ID");
+        });
 
         if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
             log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
@@ -165,12 +163,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new InvalidInputException("Document ID cannot be null or a negative number");
         }
 
-        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
-
-        if(uploadedDocument == null){
+        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
             log.error("No documents were found with the specified document ID: " + id);
-            throw new NoDocumentsFoundException("No document found with the specified document ID");
-        }
+            return new NoDocumentsFoundException("No document found with the specified document ID");
+        });
 
         if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
             log.error("The document requested in the call to the deletePatientDocument method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
