@@ -78,28 +78,24 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      */
     @Override
     public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id) {
-        UploadedDocumentDto uploadedDocumentDto;
-
-        if((patientMrn != null) && (patientMrn.length() > 0)){
-            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
-
-            if(uploadedDocument != null){
-                if(Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
-                    uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
-                }else{
-                    log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
-                    throw new NoDocumentsFoundException("No document found with the specified document ID");
-                }
-            }else{
-                log.error("No documents were found with the specified document ID: " + id);
-                throw new NoDocumentsFoundException("No document found with the specified document ID");
-            }
-        }else{
+        if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        return uploadedDocumentDto;
+        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
+
+        if(uploadedDocument == null){
+            log.error("No documents were found with the specified document ID: " + id);
+            throw new NoDocumentsFoundException("No document found with the specified document ID");
+        }
+
+        if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
+            log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+            throw new NoDocumentsFoundException("No document found with the specified document ID");
+        }
+
+        return modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
     }
 
     /**
