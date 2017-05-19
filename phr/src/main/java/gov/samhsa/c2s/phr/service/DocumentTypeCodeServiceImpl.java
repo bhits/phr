@@ -9,8 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Slf4j
@@ -31,10 +32,9 @@ public class DocumentTypeCodeServiceImpl implements DocumentTypeCodeService {
     public List<DocumentTypeCodeDto> getAllDocumentTypeCodes() {
         List<DocumentTypeCode> documentTypeCodeList = documentTypeCodeRepository.findAll();
 
-        List<DocumentTypeCodeDto> documentTypeCodeDtoList = new ArrayList<>();
-        documentTypeCodeList.forEach(docTypeCode -> documentTypeCodeDtoList.add(modelMapper.map(docTypeCode, DocumentTypeCodeDto.class)));
-
-        return documentTypeCodeDtoList;
+        return documentTypeCodeList.stream()
+                .map(typeCode -> modelMapper.map(typeCode, DocumentTypeCodeDto.class))
+                .collect(toList());
     }
 
     /**
