@@ -43,13 +43,16 @@ public interface UploadedDocumentService {
      * back to the client.
      * @see gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException
      *
-     * @param saveNewUploadedDocumentDto - An object containing the uploaded file to be saved, as well as metadata about the file
-     * @see SaveNewUploadedDocumentDto
+     * @param patientMrn - the MRN of the patient for whom the uploaded file belongs to
+     * @param file - the file to be saved
+     * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the fileName)
+     * @param description - A description of the file being uploaded (this value can be null)
+     * @param documentTypeCodeId - The document type
      * @return An object containing metadata about the newly saved patient document file, including the system generated id
      * @see SavedNewUploadedDocumentResponseDto
      */
     @Transactional
-    SavedNewUploadedDocumentResponseDto saveNewPatientDocument(SaveNewUploadedDocumentDto saveNewUploadedDocumentDto);
+    SavedNewUploadedDocumentResponseDto saveNewPatientDocument(String patientMrn, MultipartFile file, String documentName, String description, Long documentTypeCodeId);
 
     /**
      * Deletes a document by document ID
@@ -62,24 +65,4 @@ public interface UploadedDocumentService {
      */
     @Transactional
     void deletePatientDocument(String patientMrn, Long id);
-
-    /**
-     * Generates a SaveNewUploadedDocumentDto object to be used to save an uploaded document
-     *
-     * @param patientMrn - the MRN of the patient for whom the uploaded file belongs to
-     * @param file - the file to be save
-     * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the fileName)
-     * @param description - An optional description of the file being uploaded
-     * @param documentTypeCodeId - The document type
-     * @return A SaveNewUploadedDocumentDto object containing the file and associated metadata to be saved
-     * @see SaveNewUploadedDocumentDto
-     * @throws IOException - Thrown if an IOException occurs while trying to extract the file bytes from the file object
-     */
-    SaveNewUploadedDocumentDto generateSaveDtoForDoc(
-            String patientMrn,
-            MultipartFile file,
-            String documentName,
-            String description,
-            Long documentTypeCodeId
-    ) throws IOException;
 }

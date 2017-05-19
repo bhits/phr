@@ -106,11 +106,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
-    public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(SaveNewUploadedDocumentDto saveNewUploadedDocumentDto) {
-        if(saveNewUploadedDocumentDto == null){
-            log.error("The saveNewUploadedDocumentDto parameter value passed to saveNewPatientDocument method was null");
-            throw new InvalidInputException("The system could not save the uploaded file");
-        }
+    public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(String patientMrn, MultipartFile file, String documentName, String description, Long documentTypeCodeId) {
+        SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
+
+        saveNewUploadedDocumentDto = generateSaveDtoForDoc(patientMrn, file, documentName, description, documentTypeCodeId);
 
         String newDocumentName = saveNewUploadedDocumentDto.getDocumentName();
 
@@ -191,21 +190,58 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     }
 
     /**
-     * {@inheritDoc}
+     * Generates a SaveNewUploadedDocumentDto object to be used to save an uploaded document
+     *
+     * @param patientMrn - the MRN of the patient for whom the uploaded file belongs to
+     * @param file - the file to be save
+     * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the fileName)
+     * @param description - A description of the file being uploaded (this value can be null)
+     * @param documentTypeCodeId - The document type
+     * @return A SaveNewUploadedDocumentDto object containing the file and associated metadata to be saved
+     * @see SaveNewUploadedDocumentDto
      */
-    public SaveNewUploadedDocumentDto generateSaveDtoForDoc(
+    private SaveNewUploadedDocumentDto generateSaveDtoForDoc(
             String patientMrn,
             MultipartFile file,
             String documentName,
             String description,
             Long documentTypeCodeId
-    ) throws IOException{
-        if(!fileCheckService.isFileExtensionPermitted(file)){
-            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file extension is not a permitted extension type");
-            throw new InvalidInputException("The uploaded file could not be saved because the file extension was not a permitted extension type");
+    ){
+        if((patientMrn == null) || (patientMrn.length() <= 0)){
+            log.error("Unable to generate a SaveNewUploadedDocumentDto in generateSaveDtoForDoc method because value of patientMrn parameter is null or empty");
+            throw new InvalidInputException("The patient MRN value cannot be null or empty");
         }
 
-        byte[] uploadedFileBytes = file.getBytes();
+        if(file == null){
+            log.error("Unable to generate a SaveNewUploadedDocumentDto in generateSaveDtoForDoc method because value of file parameter is null");
+            throw new InvalidInputException("The file cannot be null");
+        }
+
+        if((documentName == null) || (documentName.length() <= 0)){
+            log.error("Unable to generate a SaveNewUploadedDocumentDto in generateSaveDtoForDoc method because value of documentName parameter is null or empty");
+            throw new InvalidInputException("The document name value cannot be null or empty");
+        }
+
+        if(documentTypeCodeId == null){
+            log.error("Unable to generate a SaveNewUploadedDocumentDto in generateSaveDtoForDoc method because value of documentTypeCodeId parameter is null");
+            throw new InvalidInputException("The document type code ID cannot be null");
+        }
+
+        // Check if the file's extension is one of the configured permitted extension types
+        if(!fileCheckService.isFileExtensionPermitted(file)){
+            log.error("The uploaded file (filename: " + file.getOriginalFilename() + ") was not saved because the file extension is not a permitted extension type");
+            throw new InvalidInputException("The uploaded file's extension was not a permitted extension type");
+        }
+
+        byte[] uploadedFileBytes;
+
+        try {
+            // extract file content as byte array
+            uploadedFileBytes = file.getBytes();
+        }catch(IOException e){
+            log.error("An IOException occurred while invoking file.getBytes from inside the generateSaveDtoForDoc method", e);
+            throw new DocumentSaveException("An error occurred while attempting to save a new document");
+        }
 
         if(uploadedFileBytes.length <= 0){
             log.error("The byte array extracted from the uploaded MultipartFile object was empty (uploadedFileBytes.length: " + uploadedFileBytes.length + ")");

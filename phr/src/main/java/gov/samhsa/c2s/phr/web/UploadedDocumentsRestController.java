@@ -3,11 +3,9 @@ package gov.samhsa.c2s.phr.web;
 import gov.samhsa.c2s.phr.service.DocumentTypeCodeService;
 import gov.samhsa.c2s.phr.service.UploadedDocumentService;
 import gov.samhsa.c2s.phr.service.dto.DocumentTypeCodeDto;
-import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
-import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -93,23 +90,14 @@ public class UploadedDocumentsRestController {
     @PostMapping("/patients/{patientMrn}/documents")
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(
             @PathVariable String patientMrn,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("documentName") String documentName,
-            @RequestParam("description") String description,
-            @RequestParam("documentTypeCodeId") Long documentTypeCodeId
+            @RequestParam(value = "file") MultipartFile file,
+            @RequestParam(value = "documentName") String documentName,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "documentTypeCodeId") Long documentTypeCodeId
     ){
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
-        SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
-
-        try{
-            saveNewUploadedDocumentDto = uploadedDocumentService.generateSaveDtoForDoc(patientMrn, file, documentName, description, documentTypeCodeId);
-        }catch (IOException e){
-            log.error("An IOException occurred while invoking UploadedDocumentService.generateSaveDtoForDoc from inside the saveNewPatientDocument controller method", e);
-            throw new DocumentSaveException("An error occurred while attempting to save a new document");
-        }
-
-        return uploadedDocumentService.saveNewPatientDocument(saveNewUploadedDocumentDto);
+        return uploadedDocumentService.saveNewPatientDocument(patientMrn, file, documentName, description, documentTypeCodeId);
     }
 
     /**
