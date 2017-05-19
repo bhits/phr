@@ -15,7 +15,7 @@ public interface DocumentTypeCodeService {
      * @return A List of all document type code DTOs
      * @see DocumentTypeCodeDto
      */
-    @Transactional
+    @Transactional(readOnly = true)
     List<DocumentTypeCodeDto> getAllDocumentTypeCodes();
 
     /**
@@ -26,6 +26,6 @@ public interface DocumentTypeCodeService {
      * @see DocumentTypeCode
      * @throws DocumentTypeCodeNotFoundException - thrown if no document type code is found for requested document type code id
      */
-    @Transactional
+    @Transactional(readOnly = true)
     DocumentTypeCode getDocumentTypeCodeById(Long id) throws DocumentTypeCodeNotFoundException;
 }

@@ -17,7 +17,7 @@ public interface UploadedDocumentService {
      * @param patientMrn - The MRN of the patient whose uploaded documents metadata is being queried
      * @return A list of UploadedDocumentInfoDto objects with information about each of the patient's uploaded documents
      */
-    @Transactional
+    @Transactional(readOnly = true)
     List<UploadedDocumentInfoDto> getPatientDocumentInfoList(String patientMrn);
 
     /**
@@ -30,7 +30,7 @@ public interface UploadedDocumentService {
      * @param documentId - The ID of the document to retrieve
      * @return An UploadedDocumentDto which contains the document itself, as well as document metadata
      */
-    @Transactional
+    @Transactional(readOnly = true)
     UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long documentId);
 
 
