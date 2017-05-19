@@ -27,11 +27,11 @@ public interface UploadedDocumentService {
      * that the document being retrieved belongs to the specified patient.
      *
      * @param patientMrn - The MRN of the patient whom the queried document belongs to
-     * @param documentId - The ID of the document to retrieve
+     * @param id - The ID of the document to retrieve
      * @return An UploadedDocumentDto which contains the document itself, as well as document metadata
      */
     @Transactional(readOnly = true)
-    UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long documentId);
+    UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id);
 
 
     /**
@@ -45,7 +45,7 @@ public interface UploadedDocumentService {
      *
      * @param saveNewUploadedDocumentDto - An object containing the uploaded file to be saved, as well as metadata about the file
      * @see SaveNewUploadedDocumentDto
-     * @return An object containing metadata about the newly saved patient document file, including the system generated documentId
+     * @return An object containing metadata about the newly saved patient document file, including the system generated id
      * @see SavedNewUploadedDocumentResponseDto
      */
     @Transactional
@@ -58,10 +58,10 @@ public interface UploadedDocumentService {
      * that the document being deleted belongs to the specified patient.
      *
      * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
-     * @param documentId - The ID of the document to delete
+     * @param id - The ID of the document to delete
      */
     @Transactional
-    void deletePatientDocument(String patientMrn, Long documentId);
+    void deletePatientDocument(String patientMrn, Long id);
 
     /**
      * Generates a SaveNewUploadedDocumentDto object to be used to save an uploaded document

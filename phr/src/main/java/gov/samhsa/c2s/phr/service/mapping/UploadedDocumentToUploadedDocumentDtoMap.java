@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class UploadedDocumentToUploadedDocumentDtoMap extends PropertyMap<UploadedDocument, UploadedDocumentDto> {
     @Override
     protected void configure() {
-        map().setDocumentId(source.getDocumentId());
+        map().setId(source.getId());
         map().setFileName(source.getFileName());
         map().setDocumentName(source.getDocumentName());
         map().setContentType(source.getContentType());

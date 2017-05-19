@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @NoArgsConstructor
 public class UploadedDocumentDto {
     @NotEmpty
-    private Long documentId;
+    private Long id;
 
     @NotEmpty
     private String patientMrn;

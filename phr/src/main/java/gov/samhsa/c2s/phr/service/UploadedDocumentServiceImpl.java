@@ -77,21 +77,21 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
-    public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long documentId) {
+    public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id) {
         UploadedDocumentDto uploadedDocumentDto;
 
         if((patientMrn != null) && (patientMrn.length() > 0)){
-            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(documentId);
+            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
 
             if(uploadedDocument != null){
                 if(Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
                     uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
                 }else{
-                    log.error("The document requested in the call to the getPatientDocumentByDocId method (documentId: " + documentId + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+                    log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
                     throw new NoDocumentsFoundException("No document found with the specified document ID");
                 }
             }else{
-                log.error("No documents were found with the specified document ID: " + documentId);
+                log.error("No documents were found with the specified document ID: " + id);
                 throw new NoDocumentsFoundException("No document found with the specified document ID");
             }
         }else{
@@ -159,26 +159,26 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
-    public void deletePatientDocument(String patientMrn, Long documentId){
+    public void deletePatientDocument(String patientMrn, Long id){
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the deletePatientDocument method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        if((documentId == null) || (documentId < 0)){
-            log.error("The documentId value passed to the deletePatientDocument method was null or a negative number");
+        if((id == null) || (id < 0)){
+            log.error("The document ID value passed to the deletePatientDocument method was null or a negative number");
             throw new InvalidInputException("Document ID cannot be null or a negative number");
         }
 
-        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(documentId);
+        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOne(id);
 
         if(uploadedDocument == null){
-            log.error("No documents were found with the specified document ID: " + documentId);
+            log.error("No documents were found with the specified document ID: " + id);
             throw new NoDocumentsFoundException("No document found with the specified document ID");
         }
 
         if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
-            log.error("The document requested in the call to the deletePatientDocument method (documentId: " + documentId + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+            log.error("The document requested in the call to the deletePatientDocument method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
             throw new NoDocumentsFoundException("No document found with the specified document ID");
         }
 

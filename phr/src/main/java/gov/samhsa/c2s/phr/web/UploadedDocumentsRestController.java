@@ -68,13 +68,13 @@ public class UploadedDocumentsRestController {
      * @see gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException
      *
      * @param patientMrn - the MRN of the patient whose document is to be retrieved
-     * @param documentId - the ID of the document to be retrieved
+     * @param id - the ID of the document to be retrieved
      * @return An UploadedDocumentDto object containing the requested document, as well as metadata about the document
      * @see UploadedDocumentDto
      */
-    @GetMapping("/patients/{patientMrn}/documents/{documentId}")
-    public UploadedDocumentDto getPatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
-        return uploadedDocumentService.getPatientDocumentByDocId(patientMrn, documentId);
+    @GetMapping("/patients/{patientMrn}/documents/{id}")
+    public UploadedDocumentDto getPatientDocument(@PathVariable String patientMrn, @PathVariable Long id){
+        return uploadedDocumentService.getPatientDocumentByDocId(patientMrn, id);
     }
 
     /**
@@ -122,11 +122,11 @@ public class UploadedDocumentsRestController {
      * @see gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException
      *
      * @param patientMrn - The MRN of the patient whom the document to be deleted belongs to
-     * @param documentId - The ID of the document to delete
+     * @param id - The ID of the document to delete
      */
-    @DeleteMapping("/patients/{patientMrn}/documents/{documentId}")
-    public void deletePatientDocument(@PathVariable String patientMrn, @PathVariable Long documentId){
-        uploadedDocumentService.deletePatientDocument(patientMrn, documentId);
+    @DeleteMapping("/patients/{patientMrn}/documents/{id}")
+    public void deletePatientDocument(@PathVariable String patientMrn, @PathVariable Long id){
+        uploadedDocumentService.deletePatientDocument(patientMrn, id);
     }
 
 }

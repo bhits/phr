@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class UploadedDocumentToSavedNewUploadedDocumentResponseDtoMap extends PropertyMap<UploadedDocument, SavedNewUploadedDocumentResponseDto> {
     @Override
     protected void configure() {
-        map().setDocumentId(source.getDocumentId());
+        map().setId(source.getId());
         map().setFileName(source.getFileName());
         map().setDocumentName(source.getDocumentName());
         map().setContentType(source.getContentType());

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,8 +17,7 @@ import javax.validation.constraints.NotNull;
 public class UploadedDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "document_id")
-    private Long documentId;
+    private Long id;
 
     @NotEmpty
     private String patientMrn;
