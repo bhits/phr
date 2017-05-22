@@ -7,11 +7,21 @@ info:
 ribbon:
   ReadTimeout: 50000
 spring:
+  http:
+    multipart:
+      max-file-size: 10MB
   datasource:
     # configure url, username and password per environment
     url: jdbc:mysql://localhost:3306/phr?autoReconnect=true
     username: root
     password: admin
+c2s:
+  phr:
+    patientDocumentUploads:
+      # List of permitted file extensions for clinical document files uploaded to PHR
+      extensionsPermittedToUpload:
+        - xml
+        - txt
 ---
 spring.profiles: standalone-ssl
 spring:
