@@ -1,13 +1,11 @@
 package gov.samhsa.c2s.phr.service;
 
-import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface UploadedDocumentService {
