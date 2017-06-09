@@ -77,10 +77,10 @@ public class UploadedDocumentsRestController {
     /**
      * Saves new uploaded patient document file
      *
-     * @param patientMrn - the MRN of the patient for whom the uploaded file belongs to
-     * @param file - the file to be saved
-     * @param documentName - the user chosen name of the file being uploaded (this may or may not be identical to the fileName)
-     * @param description - An optional description of the file being uploaded
+     * @param patientMrn - the MRN of the patient for whom the uploaded documentFile belongs to
+     * @param documentFile - the documentFile to be saved
+     * @param documentName - the user chosen name of the documentFile being uploaded (this may or may not be identical to the fileName)
+     * @param description - An optional description of the documentFile being uploaded
      * @param documentTypeCodeId - The document type
      * @return A SavedNewUploadedDocumentResponseDto object containing metadata about the newly saved patient document;
      *         - if the specified patient already has document saved with the same
@@ -90,14 +90,14 @@ public class UploadedDocumentsRestController {
     @PostMapping("/patients/{patientMrn}/documents")
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(
             @PathVariable String patientMrn,
-            @RequestParam(value = "file") MultipartFile file,
+            @RequestParam(value = "documentFile") MultipartFile documentFile,
             @RequestParam(value = "documentName") String documentName,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "documentTypeCodeId") Long documentTypeCodeId
     ){
         // TODO: Invoke ClamAV scanner service to scan uploaded file for viruses before doing anything else.
 
-        return uploadedDocumentService.saveNewPatientDocument(patientMrn, file, documentName, description, documentTypeCodeId);
+        return uploadedDocumentService.saveNewPatientDocument(patientMrn, documentFile, documentName, description, documentTypeCodeId);
     }
 
     /**
