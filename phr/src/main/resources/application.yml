@@ -22,7 +22,9 @@ c2s:
       extensionsPermittedToUpload:
         - xml
         - txt
-    documentValidatorServiceBasePath: /document-validator
+    # Configure document-validator context path based on running instance
+    document-validator:
+      context-path: "/document-validator"
 ---
 spring.profiles: standalone-ssl
 spring:

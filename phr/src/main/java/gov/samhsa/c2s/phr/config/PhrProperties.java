@@ -25,7 +25,7 @@ public class PhrProperties {
     private PatientDocumentUploads patientDocumentUploads;
 
     @NotEmpty
-    private String documentValidatorServiceBasePath;
+    private DocumentValidator documentValidator;
 
     @Data
     @Builder
@@ -38,5 +38,14 @@ public class PhrProperties {
         public List<String> getExtensionsPermittedToUpload() {
             return extensionsPermittedToUpload;
         }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentValidator {
+        @NotEmpty
+        private String contextPath;
     }
 }
