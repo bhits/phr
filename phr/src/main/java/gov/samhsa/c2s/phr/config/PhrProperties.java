@@ -24,6 +24,9 @@ public class PhrProperties {
     @Valid
     private PatientDocumentUploads patientDocumentUploads;
 
+    @NotEmpty
+    private String documentValidatorServiceBasePath;
+
     @Data
     @Builder
     @AllArgsConstructor

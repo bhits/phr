@@ -22,6 +22,7 @@ c2s:
       extensionsPermittedToUpload:
         - xml
         - txt
+    documentValidatorServiceBasePath: /document-validator
 ---
 spring.profiles: standalone-ssl
 spring:
