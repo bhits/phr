@@ -3,14 +3,18 @@ package gov.samhsa.c2s.phr.service;
 import gov.samhsa.c2s.phr.domain.DocumentTypeCode;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
+import gov.samhsa.c2s.phr.infrastructure.DocumentValidatorService;
+import gov.samhsa.c2s.phr.infrastructure.dto.ValidationResponseDto;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.DocumentDeleteException;
+import gov.samhsa.c2s.phr.service.exception.DocumentInvalidException;
 import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.DocumentTypeCodeNotFoundException;
+import gov.samhsa.c2s.phr.service.exception.DocumentValidatorResponseException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,18 +36,21 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final DocumentTypeCodeService documentTypeCodeService;
     private final FileCheckService fileCheckService;
     private final ModelMapper modelMapper;
+    private final DocumentValidatorService documentValidatorService;
 
     @Autowired
     public UploadedDocumentServiceImpl(
             UploadedDocumentRepository uploadedDocumentRepository,
             DocumentTypeCodeService documentTypeCodeService,
             FileCheckService fileCheckService,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            DocumentValidatorService documentValidatorService) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.documentTypeCodeService = documentTypeCodeService;
         this.fileCheckService = fileCheckService;
         this.modelMapper = modelMapper;
+        this.documentValidatorService = documentValidatorService;
     }
 
     /**
@@ -112,7 +119,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new DocumentNameExistsException("The specified patient already has a document with the same document name");
         }
 
-        // TODO: Validate uploaded CCDA/C32 file using document validator service
+        if(!isUploadedDocumentFileValid(file)){
+            log.info("The uploaded document ('" + file.getOriginalFilename() + "') is not a valid C32 or CCDA document.");
+            throw new DocumentInvalidException("The uploaded document is not a valid C32 or CCDA document");
+        }
 
         DocumentTypeCode documentTypeCode;
         try{
@@ -256,5 +266,30 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         List<UploadedDocument> patientUploadedDocuments = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
         return patientUploadedDocuments.stream()
                 .anyMatch(doc -> doc.getDocumentName().equals(newDocumentName));
+    }
+
+    /**
+     * Validates documentFile using document-validator service to ensure the document is a valid C32 or CCDA document
+     *
+     * @param documentFile - The uploaded documentFile to validate
+     * @return true if valid; false otherwise
+     * @throws DocumentValidatorResponseException if document validator service call returns null
+     */
+    private boolean isUploadedDocumentFileValid(MultipartFile documentFile){
+        ValidationResponseDto validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
+
+        if(validationResponse != null){
+            boolean isValid = validationResponse.isDocumentValid();
+
+            if(!isValid){
+                log.debug("Document is invalid. Details: ", validationResponse);
+            }
+
+            return isValid;
+        }else{
+            log.error("The ValidationResponseDto object returned from the call to the document validator service was null or otherwise invalid");
+            throw new DocumentValidatorResponseException("The document validator service could not be reached or returned an unexpected value");
+        }
+
     }
 }
