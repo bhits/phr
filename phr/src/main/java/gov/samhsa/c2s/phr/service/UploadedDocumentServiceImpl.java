@@ -1,5 +1,7 @@
 package gov.samhsa.c2s.phr.service;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import feign.FeignException;
 import gov.samhsa.c2s.phr.domain.DocumentTypeCode;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
@@ -276,13 +278,39 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * @throws DocumentValidatorResponseException if document validator service call returns null
      */
     private boolean isUploadedDocumentFileValid(MultipartFile documentFile){
-        ValidationResponseDto validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
+        ValidationResponseDto validationResponse;
+        boolean isValid;
+
+        try {
+            validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
+        } catch (HystrixRuntimeException hystrixErr) {
+            Throwable causedBy = hystrixErr.getCause();
+
+            if(!(causedBy instanceof FeignException)){
+                log.error("Unexpected instance of HystrixRuntimeException has occurred", hystrixErr);
+                throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
+            }
+
+            int causedByStatus = ((FeignException) causedBy).status();
+
+            switch(causedByStatus){
+                case 400:
+                    log.error("document-validator client returned a 400 - BAD REQUEST status, indicating invalid input was passed to document-validator client", causedBy);
+                    throw new InvalidInputException("Invalid input was passed to document-validator client");
+                case 412:
+                    log.info("Document is invalid.");
+                    return false;
+                default:
+                    log.error("document-validator client returned an unexpected instance of FeignException", causedBy);
+                    throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
+            }
+        }
 
         if(validationResponse != null){
-            boolean isValid = validationResponse.isDocumentValid();
+            isValid = validationResponse.isDocumentValid();
 
             if(!isValid){
-                log.debug("Document is invalid. Details: ", validationResponse);
+                log.info("Document is invalid. Details: ", validationResponse);
             }
 
             return isValid;
