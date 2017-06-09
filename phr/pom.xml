@@ -56,6 +56,7 @@
         <java.version>1.8</java.version>
         <docker.maven.version>0.4.13</docker.maven.version>
         <modelmapper.version>0.7.7</modelmapper.version>
+        <openfeign.form.version>2.1.0</openfeign.form.version>
     </properties>
 
     <dependencies>
@@ -74,6 +75,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -115,6 +120,17 @@
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
             <version>${modelmapper.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form</artifactId>
+            <version>${openfeign.form.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form-spring</artifactId>
+            <version>${openfeign.form.version}</version>
         </dependency>
 
         <!-- Test -->
