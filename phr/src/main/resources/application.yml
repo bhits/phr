@@ -6,6 +6,7 @@ info:
   component: Patient Health Record Service
 ribbon:
   ReadTimeout: 50000
+hystrix.command.default.execution.timeout.enabled: false
 spring:
   http:
     multipart:
