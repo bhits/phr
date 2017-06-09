@@ -24,7 +24,7 @@ public class PhrProperties {
     @Valid
     private PatientDocumentUploads patientDocumentUploads;
 
-    @NotEmpty
+    @Valid
     private DocumentValidator documentValidator;
 
     @Data
