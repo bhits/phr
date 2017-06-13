@@ -24,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<UploadedDocumentInfoDto> getPatientDocumentInfoList(String patientMrn) {
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
@@ -86,6 +88,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id) {
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
@@ -109,6 +112,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(String patientMrn, MultipartFile file, String documentName, String description, Long documentTypeCodeId) {
         SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
 
@@ -164,6 +168,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void deletePatientDocument(String patientMrn, Long id){
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the deletePatientDocument method was null or empty");
