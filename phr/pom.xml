@@ -57,6 +57,7 @@
         <docker.maven.version>0.4.13</docker.maven.version>
         <modelmapper.version>0.7.7</modelmapper.version>
         <openfeign.form.version>2.1.0</openfeign.form.version>
+        <apache.commons-io.version>2.4</apache.commons-io.version>
     </properties>
 
     <dependencies>
@@ -114,6 +115,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${apache.commons-io.version}</version>
         </dependency>
 
         <dependency>
