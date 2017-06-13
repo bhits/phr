@@ -23,6 +23,11 @@ c2s:
       extensionsPermittedToUpload:
         - xml
         - txt
+      sampleUploadedDocuments:
+        - file: "defaultSampleDocs/SampleCCD1.xml"
+          fileName: "SampleCCD1.xml"
+          documentName: "Sample CCD Doc 1"
+          contentType: "text/xml"
     # Configure document-validator context path based on running instance
     document-validator:
       context-path: "/document-validator"

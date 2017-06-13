@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,6 +15,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class UploadedDocumentInfoDto {
     @NotEmpty
     private Long id;
+
+    @NotNull
+    private boolean isSampleDocument;
 
     @NotEmpty
     private String fileName;

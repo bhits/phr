@@ -30,4 +30,8 @@ public class SavedNewUploadedDocumentResponseDto {
 
     @NotEmpty
     private String documentTypeDisplayName;
+
+    /* This variable should always be false in this class.
+    It is needed for compatibility with front-end code. */
+    private final boolean isSampleDocument = false;
 }

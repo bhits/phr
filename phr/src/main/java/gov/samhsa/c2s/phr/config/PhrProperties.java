@@ -33,6 +33,27 @@ public class PhrProperties {
     public static class PatientDocumentUploads {
         @NotEmpty
         private List<String> extensionsPermittedToUpload;
+
+        @Valid
+        private List<SampleUploadedDocData> sampleUploadedDocuments;
+
+        @Data
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class SampleUploadedDocData {
+            @NotEmpty
+            private String file;
+
+            @NotEmpty
+            private String fileName;
+
+            @NotEmpty
+            private String documentName;
+
+            @NotEmpty
+            private String contentType;
+        }
     }
 
     @Data

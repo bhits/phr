@@ -2,6 +2,7 @@ package gov.samhsa.c2s.phr.service;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import feign.FeignException;
+import gov.samhsa.c2s.phr.config.PhrProperties;
 import gov.samhsa.c2s.phr.domain.DocumentTypeCode;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,6 +42,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final FileCheckService fileCheckService;
     private final ModelMapper modelMapper;
     private final DocumentValidatorService documentValidatorService;
+    private final PhrProperties phrProperties;
 
     @Autowired
     public UploadedDocumentServiceImpl(
@@ -47,13 +50,15 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             DocumentTypeCodeService documentTypeCodeService,
             FileCheckService fileCheckService,
             ModelMapper modelMapper,
-            DocumentValidatorService documentValidatorService) {
+            DocumentValidatorService documentValidatorService,
+            PhrProperties phrProperties) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.documentTypeCodeService = documentTypeCodeService;
         this.fileCheckService = fileCheckService;
         this.modelMapper = modelMapper;
         this.documentValidatorService = documentValidatorService;
+        this.phrProperties = phrProperties;
     }
 
     /**
@@ -68,18 +73,48 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         List<UploadedDocument> uploadedPatientDocumentsList = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
+        List<UploadedDocumentInfoDto> tempUploadedDocumentInfoDtoList = new ArrayList<>();
 
-        if(uploadedPatientDocumentsList.size() <= 0){
-            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method");
-            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
+        if(uploadedPatientDocumentsList.size() > 0){
+            tempUploadedDocumentInfoDtoList = uploadedPatientDocumentsList.stream()
+                    .map(uploadedDocument -> modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class))
+                    .collect(Collectors.toList());
         }
 
-        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = new ArrayList<>();
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = tempUploadedDocumentInfoDtoList;
 
-        uploadedPatientDocumentsList.forEach(uploadedDocument -> {
-            UploadedDocumentInfoDto uploadedDocumentInfoDto = modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class);
-            uploadedDocumentInfoDtoList.add(uploadedDocumentInfoDto);
-        });
+        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
+
+        if(numSampleDocs > 0){
+            Long nextSampleDocId = (long) (numSampleDocs * -1); // convert number of sample documents to equivalent negative number
+
+            List<UploadedDocumentInfoDto> sampleUploadedDocumentInfoDtoList = new ArrayList<>();
+
+            for (PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleDocData : phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments()) {
+                sampleUploadedDocumentInfoDtoList.add(new UploadedDocumentInfoDto(
+                        nextSampleDocId,
+                        true,
+                        sampleDocData.getFileName(),
+                        sampleDocData.getDocumentName(),
+                        sampleDocData.getContentType(),
+                        null,
+                        (long) -1,
+                        "Sample Document Type"
+                ));
+
+                nextSampleDocId++;
+            }
+
+            // Reverse the sort order of this list
+            sampleUploadedDocumentInfoDtoList.sort((d1, d2) -> Long.compare(d2.getId(), d1.getId()));
+
+            sampleUploadedDocumentInfoDtoList.forEach(sampleDocData -> uploadedDocumentInfoDtoList.add(0, sampleDocData));
+        }
+
+        if(uploadedDocumentInfoDtoList.size() <= 0){
+            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method, nor were any sample documents configured");
+            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
+        }
 
         return uploadedDocumentInfoDtoList;
     }
