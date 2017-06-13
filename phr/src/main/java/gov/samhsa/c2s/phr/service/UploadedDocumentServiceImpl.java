@@ -81,35 +81,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
                     .collect(Collectors.toList());
         }
 
-        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = tempUploadedDocumentInfoDtoList;
-
-        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
-
-        if(numSampleDocs > 0){
-            Long nextSampleDocId = (long) (numSampleDocs * -1); // convert number of sample documents to equivalent negative number
-
-            List<UploadedDocumentInfoDto> sampleUploadedDocumentInfoDtoList = new ArrayList<>();
-
-            for (PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleDocData : phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments()) {
-                sampleUploadedDocumentInfoDtoList.add(new UploadedDocumentInfoDto(
-                        nextSampleDocId,
-                        true,
-                        sampleDocData.getFileName(),
-                        sampleDocData.getDocumentName(),
-                        sampleDocData.getContentType(),
-                        null,
-                        (long) -1,
-                        "Sample Document Type"
-                ));
-
-                nextSampleDocId++;
-            }
-
-            // Reverse the sort order of this list
-            sampleUploadedDocumentInfoDtoList.sort((d1, d2) -> Long.compare(d2.getId(), d1.getId()));
-
-            sampleUploadedDocumentInfoDtoList.forEach(sampleDocData -> uploadedDocumentInfoDtoList.add(0, sampleDocData));
-        }
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = addSampleDocsToDocsInfoList(tempUploadedDocumentInfoDtoList);
 
         if(uploadedDocumentInfoDtoList.size() <= 0){
             log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method, nor were any sample documents configured");
@@ -359,5 +331,39 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new DocumentValidatorResponseException("The document validator service could not be reached or returned an unexpected value");
         }
 
+    }
+
+    private List<UploadedDocumentInfoDto> addSampleDocsToDocsInfoList(List<UploadedDocumentInfoDto> patientDocsInfoList){
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = patientDocsInfoList;
+
+        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
+
+        if(numSampleDocs > 0){
+            Long nextSampleDocId = (long) (numSampleDocs * -1); // convert number of sample documents to equivalent negative number
+
+            List<UploadedDocumentInfoDto> sampleUploadedDocumentInfoDtoList = new ArrayList<>();
+
+            for (PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleDocData : phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments()) {
+                sampleUploadedDocumentInfoDtoList.add(new UploadedDocumentInfoDto(
+                        nextSampleDocId,
+                        true,
+                        sampleDocData.getFileName(),
+                        sampleDocData.getDocumentName(),
+                        sampleDocData.getContentType(),
+                        null,
+                        (long) -1,
+                        "Sample Document Type"
+                ));
+
+                nextSampleDocId++;
+            }
+
+            // Reverse the sort order of this list
+            sampleUploadedDocumentInfoDtoList.sort((d1, d2) -> Long.compare(d2.getId(), d1.getId()));
+
+            sampleUploadedDocumentInfoDtoList.forEach(sampleDocData -> uploadedDocumentInfoDtoList.add(0, sampleDocData));
+        }
+
+        return uploadedDocumentInfoDtoList;
     }
 }
