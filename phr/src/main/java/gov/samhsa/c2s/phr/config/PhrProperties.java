@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -33,11 +32,7 @@ public class PhrProperties {
     @NoArgsConstructor
     public static class PatientDocumentUploads {
         @NotEmpty
-        private List<String> extensionsPermittedToUpload = new ArrayList<>();
-
-        public List<String> getExtensionsPermittedToUpload() {
-            return extensionsPermittedToUpload;
-        }
+        private List<String> extensionsPermittedToUpload;
     }
 
     @Data
