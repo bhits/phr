@@ -21,6 +21,7 @@ import gov.samhsa.c2s.phr.service.exception.DocumentValidatorResponseException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -28,7 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -97,22 +102,31 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     @Override
     @Transactional(readOnly = true)
     public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id) {
+        UploadedDocumentDto uploadedDocumentDto;
+
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
-            log.error("No documents were found with the specified document ID: " + id);
-            return new NoDocumentsFoundException("No document found with the specified document ID");
-        });
+        // Check for negative ID, which indicates a sample document was requested
+        if(id < 0){
+            uploadedDocumentDto = getSampleDocById(id, patientMrn);
+        }else{
+            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
+                log.error("No documents were found with the specified document ID: " + id);
+                return new NoDocumentsFoundException("No document found with the specified document ID");
+            });
 
-        if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
-            log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
-            throw new NoDocumentsFoundException("No document found with the specified document ID");
+            if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
+                log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+                throw new NoDocumentsFoundException("No document found with the specified document ID");
+            }
+
+            uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
         }
 
-        return modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
+        return uploadedDocumentDto;
     }
 
     /**
@@ -365,5 +379,38 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         return uploadedDocumentInfoDtoList;
+    }
+
+    private UploadedDocumentDto getSampleDocById(Long id, String patientMrn){
+        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
+        int index = id.intValue() + numSampleDocs;
+
+        PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleUploadedDocData = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().get(index);
+        byte[] fileBytes;
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(sampleUploadedDocData.getFile()).getFile());
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            fileBytes = IOUtils.toByteArray(inputStream);
+        } catch (FileNotFoundException e){
+            log.error("Unable to find requested sample file with id '" + id + "' at '" + sampleUploadedDocData.getFile() + "'", e);
+            throw new NoDocumentsFoundException("No sample document found with the specified document ID");
+        } catch (IOException e){
+            log.error("Unable to parse the file from the FileInputStream to a byte array", e);
+            throw new NoDocumentsFoundException("Unable to parse specified sample document");
+        }
+
+        return new UploadedDocumentDto(
+                id,
+                true,
+                patientMrn,
+                fileBytes,
+                sampleUploadedDocData.getFileName(),
+                sampleUploadedDocData.getDocumentName(),
+                sampleUploadedDocData.getContentType(),
+                null,
+                (long) -1,
+                "Sample Document Type"
+        );
     }
 }
