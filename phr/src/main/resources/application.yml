@@ -24,8 +24,8 @@ c2s:
         - xml
         - txt
       sampleUploadedDocuments:
-        - file: "defaultSampleDocs/SampleCCD1.xml"
-          fileName: "SampleCCD1.xml"
+        - file: "defaultSampleDocs/C-CDA_R2_CCD_2_MODIFIED.xml"
+          fileName: "C-CDA_R2_CCD_2_MODIFIED.xml"
           documentName: "Sample CCD Doc 1"
           contentType: "text/xml"
     # Configure document-validator context path based on running instance
