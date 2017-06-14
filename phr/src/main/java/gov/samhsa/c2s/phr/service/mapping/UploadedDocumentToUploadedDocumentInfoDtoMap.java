@@ -16,5 +16,6 @@ public class UploadedDocumentToUploadedDocumentInfoDtoMap extends PropertyMap<Up
         map().setDescription(source.getDescription());
         map().setDocumentTypeCodeId(source.getDocumentTypeCode().getId());
         map().setDocumentTypeDisplayName(source.getDocumentTypeCode().getDisplayName());
+        map().setSampleDocument(false);
     }
 }

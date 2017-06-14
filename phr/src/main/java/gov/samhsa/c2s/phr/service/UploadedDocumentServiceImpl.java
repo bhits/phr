@@ -1,29 +1,43 @@
 package gov.samhsa.c2s.phr.service;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import feign.FeignException;
+import gov.samhsa.c2s.phr.config.PhrProperties;
 import gov.samhsa.c2s.phr.domain.DocumentTypeCode;
 import gov.samhsa.c2s.phr.domain.UploadedDocument;
 import gov.samhsa.c2s.phr.domain.UploadedDocumentRepository;
+import gov.samhsa.c2s.phr.infrastructure.DocumentValidatorService;
+import gov.samhsa.c2s.phr.infrastructure.dto.ValidationResponseDto;
 import gov.samhsa.c2s.phr.service.dto.SaveNewUploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.SavedNewUploadedDocumentResponseDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentDto;
 import gov.samhsa.c2s.phr.service.dto.UploadedDocumentInfoDto;
 import gov.samhsa.c2s.phr.service.exception.DocumentDeleteException;
+import gov.samhsa.c2s.phr.service.exception.DocumentInvalidException;
 import gov.samhsa.c2s.phr.service.exception.DocumentNameExistsException;
 import gov.samhsa.c2s.phr.service.exception.DocumentSaveException;
 import gov.samhsa.c2s.phr.service.exception.DocumentTypeCodeNotFoundException;
+import gov.samhsa.c2s.phr.service.exception.DocumentValidatorResponseException;
 import gov.samhsa.c2s.phr.service.exception.InvalidInputException;
 import gov.samhsa.c2s.phr.service.exception.NoDocumentsFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,24 +46,31 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
     private final DocumentTypeCodeService documentTypeCodeService;
     private final FileCheckService fileCheckService;
     private final ModelMapper modelMapper;
+    private final DocumentValidatorService documentValidatorService;
+    private final PhrProperties phrProperties;
 
     @Autowired
     public UploadedDocumentServiceImpl(
             UploadedDocumentRepository uploadedDocumentRepository,
             DocumentTypeCodeService documentTypeCodeService,
             FileCheckService fileCheckService,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+            DocumentValidatorService documentValidatorService,
+            PhrProperties phrProperties) {
         super();
         this.uploadedDocumentRepository = uploadedDocumentRepository;
         this.documentTypeCodeService = documentTypeCodeService;
         this.fileCheckService = fileCheckService;
         this.modelMapper = modelMapper;
+        this.documentValidatorService = documentValidatorService;
+        this.phrProperties = phrProperties;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<UploadedDocumentInfoDto> getPatientDocumentInfoList(String patientMrn) {
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
@@ -57,18 +78,20 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         }
 
         List<UploadedDocument> uploadedPatientDocumentsList = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
+        List<UploadedDocumentInfoDto> tempUploadedDocumentInfoDtoList = new ArrayList<>();
 
-        if(uploadedPatientDocumentsList.size() <= 0){
-            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method");
-            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
+        if(uploadedPatientDocumentsList.size() > 0){
+            tempUploadedDocumentInfoDtoList = uploadedPatientDocumentsList.stream()
+                    .map(uploadedDocument -> modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class))
+                    .collect(Collectors.toList());
         }
 
-        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = new ArrayList<>();
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = addSampleDocsToDocsInfoList(tempUploadedDocumentInfoDtoList);
 
-        uploadedPatientDocumentsList.forEach(uploadedDocument -> {
-            UploadedDocumentInfoDto uploadedDocumentInfoDto = modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class);
-            uploadedDocumentInfoDtoList.add(uploadedDocumentInfoDto);
-        });
+        if(uploadedDocumentInfoDtoList.size() <= 0){
+            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method, nor were any sample documents configured");
+            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
+        }
 
         return uploadedDocumentInfoDtoList;
     }
@@ -77,29 +100,40 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UploadedDocumentDto getPatientDocumentByDocId(String patientMrn, Long id) {
+        UploadedDocumentDto uploadedDocumentDto;
+
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the getPatientDocumentInfoList method was null or empty");
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
-            log.error("No documents were found with the specified document ID: " + id);
-            return new NoDocumentsFoundException("No document found with the specified document ID");
-        });
+        // Check for negative ID, which indicates a sample document was requested
+        if(id < 0){
+            uploadedDocumentDto = getSampleDocById(id, patientMrn);
+        }else{
+            UploadedDocument uploadedDocument = uploadedDocumentRepository.findOneById(id).orElseThrow(() -> {
+                log.error("No documents were found with the specified document ID: " + id);
+                return new NoDocumentsFoundException("No document found with the specified document ID");
+            });
 
-        if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
-            log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
-            throw new NoDocumentsFoundException("No document found with the specified document ID");
+            if(!Objects.equals(patientMrn, uploadedDocument.getPatientMrn())){
+                log.error("The document requested in the call to the getPatientDocumentByDocId method (document ID: " + id + ") does not belong to the patient specified by the patientMrn parameter value passed to the method (patientMrn: " + patientMrn + ")");
+                throw new NoDocumentsFoundException("No document found with the specified document ID");
+            }
+
+            uploadedDocumentDto = modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
         }
 
-        return modelMapper.map(uploadedDocument, UploadedDocumentDto.class);
+        return uploadedDocumentDto;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public SavedNewUploadedDocumentResponseDto saveNewPatientDocument(String patientMrn, MultipartFile file, String documentName, String description, Long documentTypeCodeId) {
         SaveNewUploadedDocumentDto saveNewUploadedDocumentDto;
 
@@ -112,7 +146,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new DocumentNameExistsException("The specified patient already has a document with the same document name");
         }
 
-        // TODO: Validate uploaded CCDA/C32 file using document validator service
+        if(!isUploadedDocumentFileValid(file)){
+            log.info("The uploaded document ('" + file.getOriginalFilename() + "') is not a valid C32 or CCDA document.");
+            throw new DocumentInvalidException("The uploaded document is not a valid C32 or CCDA document");
+        }
 
         DocumentTypeCode documentTypeCode;
         try{
@@ -152,6 +189,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void deletePatientDocument(String patientMrn, Long id){
         if((patientMrn == null) || (patientMrn.length() <= 0)){
             log.error("The patientMrn value passed to the deletePatientDocument method was null or empty");
@@ -256,5 +294,123 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         List<UploadedDocument> patientUploadedDocuments = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
         return patientUploadedDocuments.stream()
                 .anyMatch(doc -> doc.getDocumentName().equals(newDocumentName));
+    }
+
+    /**
+     * Validates documentFile using document-validator service to ensure the document is a valid C32 or CCDA document
+     *
+     * @param documentFile - The uploaded documentFile to validate
+     * @return true if valid; false otherwise
+     * @throws DocumentValidatorResponseException if document validator service call returns null
+     */
+    private boolean isUploadedDocumentFileValid(MultipartFile documentFile){
+        ValidationResponseDto validationResponse;
+        boolean isValid;
+
+        try {
+            validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
+        } catch (HystrixRuntimeException hystrixErr) {
+            Throwable causedBy = hystrixErr.getCause();
+
+            if(!(causedBy instanceof FeignException)){
+                log.error("Unexpected instance of HystrixRuntimeException has occurred", hystrixErr);
+                throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
+            }
+
+            int causedByStatus = ((FeignException) causedBy).status();
+
+            switch(causedByStatus){
+                case 400:
+                    log.error("document-validator client returned a 400 - BAD REQUEST status, indicating invalid input was passed to document-validator client", causedBy);
+                    throw new InvalidInputException("Invalid input was passed to document-validator client");
+                case 412:
+                    log.info("Document is invalid.");
+                    return false;
+                default:
+                    log.error("document-validator client returned an unexpected instance of FeignException", causedBy);
+                    throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
+            }
+        }
+
+        if(validationResponse != null){
+            isValid = validationResponse.isDocumentValid();
+
+            if(!isValid){
+                log.info("Document is invalid. Details: ", validationResponse);
+            }
+
+            return isValid;
+        }else{
+            log.error("The ValidationResponseDto object returned from the call to the document validator service was null or otherwise invalid");
+            throw new DocumentValidatorResponseException("The document validator service could not be reached or returned an unexpected value");
+        }
+
+    }
+
+    private List<UploadedDocumentInfoDto> addSampleDocsToDocsInfoList(List<UploadedDocumentInfoDto> patientDocsInfoList){
+        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = patientDocsInfoList;
+
+        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
+
+        if(numSampleDocs > 0){
+            Long nextSampleDocId = (long) (numSampleDocs * -1); // convert number of sample documents to equivalent negative number
+
+            List<UploadedDocumentInfoDto> sampleUploadedDocumentInfoDtoList = new ArrayList<>();
+
+            for (PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleDocData : phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments()) {
+                sampleUploadedDocumentInfoDtoList.add(new UploadedDocumentInfoDto(
+                        nextSampleDocId,
+                        true,
+                        sampleDocData.getFileName(),
+                        sampleDocData.getDocumentName(),
+                        sampleDocData.getContentType(),
+                        null,
+                        (long) -1,
+                        "Sample Document Type"
+                ));
+
+                nextSampleDocId++;
+            }
+
+            // Reverse the sort order of this list
+            sampleUploadedDocumentInfoDtoList.sort((d1, d2) -> Long.compare(d2.getId(), d1.getId()));
+
+            sampleUploadedDocumentInfoDtoList.forEach(sampleDocData -> uploadedDocumentInfoDtoList.add(0, sampleDocData));
+        }
+
+        return uploadedDocumentInfoDtoList;
+    }
+
+    private UploadedDocumentDto getSampleDocById(Long id, String patientMrn){
+        int numSampleDocs = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().size();
+        int index = id.intValue() + numSampleDocs;
+
+        PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleUploadedDocData = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().get(index);
+        byte[] fileBytes;
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(sampleUploadedDocData.getFile()).getFile());
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            fileBytes = IOUtils.toByteArray(inputStream);
+        } catch (FileNotFoundException e){
+            log.error("Unable to find requested sample file with id '" + id + "' at '" + sampleUploadedDocData.getFile() + "'", e);
+            throw new NoDocumentsFoundException("No sample document found with the specified document ID");
+        } catch (IOException e){
+            log.error("Unable to parse the file from the FileInputStream to a byte array", e);
+            throw new NoDocumentsFoundException("Unable to parse specified sample document");
+        }
+
+        return new UploadedDocumentDto(
+                id,
+                true,
+                patientMrn,
+                fileBytes,
+                sampleUploadedDocData.getFileName(),
+                sampleUploadedDocData.getDocumentName(),
+                sampleUploadedDocData.getContentType(),
+                null,
+                (long) -1,
+                "Sample Document Type"
+        );
     }
 }

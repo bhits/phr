@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -24,16 +23,45 @@ public class PhrProperties {
     @Valid
     private PatientDocumentUploads patientDocumentUploads;
 
+    @Valid
+    private DocumentValidator documentValidator;
+
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PatientDocumentUploads {
         @NotEmpty
-        private List<String> extensionsPermittedToUpload = new ArrayList<>();
+        private List<String> extensionsPermittedToUpload;
 
-        public List<String> getExtensionsPermittedToUpload() {
-            return extensionsPermittedToUpload;
+        @Valid
+        private List<SampleUploadedDocData> sampleUploadedDocuments;
+
+        @Data
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class SampleUploadedDocData {
+            @NotEmpty
+            private String file;
+
+            @NotEmpty
+            private String fileName;
+
+            @NotEmpty
+            private String documentName;
+
+            @NotEmpty
+            private String contentType;
         }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentValidator {
+        @NotEmpty
+        private String contextPath;
     }
 }

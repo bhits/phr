@@ -6,6 +6,7 @@ info:
   component: Patient Health Record Service
 ribbon:
   ReadTimeout: 50000
+hystrix.command.default.execution.timeout.enabled: false
 spring:
   http:
     multipart:
@@ -22,6 +23,14 @@ c2s:
       extensionsPermittedToUpload:
         - xml
         - txt
+      sampleUploadedDocuments:
+        - file: "defaultSampleDocs/C-CDA_R2_CCD_2_MODIFIED.xml"
+          fileName: "C-CDA_R2_CCD_2_MODIFIED.xml"
+          documentName: "Sample CCD Doc 1"
+          contentType: "text/xml"
+    # Configure document-validator context path based on running instance
+    document-validator:
+      context-path: "/document-validator"
 ---
 spring.profiles: standalone-ssl
 spring:
