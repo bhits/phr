@@ -38,3 +38,8 @@ spring:
     include: ssl-default
 server:
   context-path: /phr
+---
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:mysql://${C2S_DB_HOST:phr-db.c2s.com}:${C2S_DB_PORT:3306}/phr?autoReconnect=true
