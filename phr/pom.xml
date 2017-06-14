@@ -38,7 +38,7 @@
     </ciManagement>
 
     <scm>
-        <url>https://github.com/bhits/phr</url>
+        <url>https://github.com/bhits-dev/phr</url>
         <connection>scm:git:${project.scm.url}.git</connection>
         <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
     </scm>
