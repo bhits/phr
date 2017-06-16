@@ -10,9 +10,9 @@ The Patient Health Record (PHR) is a core service which manages and retains non-
 
 For more information about this image, the source code, and its history, please see the [GitHub repository](https://github.com/bhits-dev/phr).
 
-# What is PHR?
+# What is the PHR?
 
-The Patient Health Record (PHR) service is a component of Consent2Share (C2S). It is a core service which manages and retains information about each patient. It does **not** store a patient's consents or added providers (that is handled by the [Patient Consent Management (PCM)](https://github.com/bhits-dev/pcm) service). PHR also manages any C32 and/or CCDA documents which a **patient** has uploaded to their own account for use in testing their consents using the [Try My Policy](https://github.com/bhits-dev/try-policy) feature.
+The Patient Health Record (PHR) service is a component of Consent2Share. It is a core service that manages and retains information about each patient. It does **not** store a patients' consents or added providers. That is handled by the [Patient Consent Management (PCM)](https://github.com/bhits-dev/pcm) service. The PHR also manages any C32 and/or C-CDA documents that a **patient** has uploaded to their own account for use in testing their consents using the [Try My Policy](https://github.com/bhits-dev/try-policy) feature.
 
 For more information and related downloads for Consent2Share, please visit [Consent2Share](https://bhits.github.io/consent2share/).
 
@@ -20,7 +20,7 @@ For more information and related downloads for Consent2Share, please visit [Cons
 
 ## Start a PHR Instance
 
-Be sure to familiarize yourself with the repository's [README.md](../README.md) file before starting the instance.
+Become familiar with the repository's [README.md](../README.md) file before starting the instance.
 
 `docker run  --name phr -d bhitsdev/phr:latest <additional program arguments>`
 
