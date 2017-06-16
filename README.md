@@ -1,6 +1,6 @@
 # Patient Health Record Service
 
-The Patient Health Record (PHR) service is a component of Consent2Share (C2S). It is a core service which manages and retains information about each patient. It does **not** store a patient's consents or added providers (that is handled by the [Patient Consent Management (PCM)](https://github.com/bhits-dev/pcm) service). PHR also manages any C32 and/or CCDA documents which a **patient** has uploaded to their own account for use in testing their consents using the [Try My Policy](https://github.com/bhits-dev/try-policy) feature.
+The Patient Health Record (PHR) service is a component of Consent2Share. It is a core service that manages and retains information about each patient. It does **not** store patients' consents or added providers. (That is handled by the [Patient Consent Management (PCM)](https://github.com/bhits-dev/pcm) service). PHR also manages any C32 and/or C-CDA documents that a **patient** has uploaded to his or her own account for use in testing their consents using the [Try My Policy](https://github.com/bhits-dev/try-policy) feature.
 
 ## Build
 
@@ -49,7 +49,7 @@ We **recommend** overriding the configuration as needed in the `Configuration Da
 
 Also, please refer to [Spring Cloud Config Documentation](https://cloud.spring.io/spring-cloud-config/spring-cloud-config.html) to see how the config server works, [Spring Boot Externalized Configuration](http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html) documentation to see how Spring Boot applies the order to load the properties, and [Spring Boot Common Properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html) documentation to see the common properties used by Spring Boot.
 
-### Other Ways to Override Configuration
+### Other Ways to Override a Configuration
 
 #### Override a Configuration Using Program Arguments While Running as a JAR:
 
@@ -71,9 +71,9 @@ services:
 ```
 *NOTE: Please note that these additional arguments will be appended to the default `ENTRYPOINT` specified in the `Dockerfile` unless the `ENTRYPOINT` is overridden.*
 
-### Configuring Sample C32/CCDA Documents
+### Configuring Sample C32/C-CDA Documents
 
-PHR allows patients to upload C32 and/or CCDA documents to their account for use when testing their consents using Try My Policy. PHR can also be configured to provide one or more sample C32 and/or CCDA documents which will be made available to all patients to use when testing their consents. By default, PHR is configured to provide a single sample document named `"C-CDA_R2_CCD_2_MODIFIED.xml"` to all patients. That sample document is built into the PHR application itself, and the default `application.yml` file is set to use that built-in `"C-CDA_R2_CCD_2_MODIFIED.xml"` file as the sample document for patients.
+The PHR allows patients to upload C32 and/or C-CDA documents to their account for use when testing their consents using Try My Policy. The PHR can also be configured to provide one or more sample C32 and/or C-CDA documents which will be made available to all patients to use when testing their consents. By default, the PHR is configured to provide a single sample document named `"C-CDA_R2_CCD_2_MODIFIED.xml"` to all patients. That sample document is built into the PHR application itself, and the default `application.yml` file is set to use that built-in `"C-CDA_R2_CCD_2_MODIFIED.xml"` file as the sample document for patients.
 
 To use your own file(s) as the sample document(s) for patients, override the `application.yml` file's `c2s.phr.patient-document-uploads.sample-uploaded-documents` property as follows:
 ```yml
