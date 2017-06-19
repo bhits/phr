@@ -24,12 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -387,10 +387,9 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         PhrProperties.PatientDocumentUploads.SampleUploadedDocData sampleUploadedDocData = phrProperties.getPatientDocumentUploads().getSampleUploadedDocuments().get(index);
         byte[] fileBytes;
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(sampleUploadedDocData.getFile()).getFile());
+        ClassPathResource classPathResource = new ClassPathResource(sampleUploadedDocData.getFile());
 
-        try (InputStream inputStream = new FileInputStream(file)) {
+        try (InputStream inputStream = new FileInputStream(classPathResource.getFile())) {
             fileBytes = IOUtils.toByteArray(inputStream);
         } catch (FileNotFoundException e){
             log.error("Unable to find requested sample file with id '" + id + "' at '" + sampleUploadedDocData.getFile() + "'", e);
