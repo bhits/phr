@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -389,7 +388,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
         byte[] fileBytes;
         ClassPathResource classPathResource = new ClassPathResource(sampleUploadedDocData.getFile());
 
-        try (InputStream inputStream = new FileInputStream(classPathResource.getFile())) {
+        try (InputStream inputStream = classPathResource.getInputStream()) {
             fileBytes = IOUtils.toByteArray(inputStream);
         } catch (FileNotFoundException e){
             log.error("Unable to find requested sample file with id '" + id + "' at '" + sampleUploadedDocData.getFile() + "'", e);
