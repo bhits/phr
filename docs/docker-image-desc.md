@@ -14,7 +14,7 @@ For more information about this image, the source code, and its history, please 
 
 The Patient Health Record (PHR) service is a component of Consent2Share. It is a core service that manages and retains information about each patient. It does **not** store a patients' consents or added providers. That is handled by the [Patient Consent Management (PCM)](https://github.com/bhits-dev/pcm) service. The PHR also manages any C32 and/or C-CDA documents that a **patient** has uploaded to their own account for use in testing their consents using the [Try My Policy](https://github.com/bhits-dev/try-policy) feature.
 
-For more information and related downloads for Consent2Share, please visit [Consent2Share](https://bhits.github.io/consent2share/).
+For more information and related downloads for Consent2Share, please visit [Consent2Share](https://bhits-dev.github.io/consent2share/).
 
 # How to Use This Image
 
@@ -82,7 +82,7 @@ View [license](../LICENSE) information for the software contained in this image.
 
 ## Documentation
  
-Documentation for this image is stored in the [bhits-dev/phr](https://github.com/bhits-dev/phr) GitHub repository. Be sure to familiarize yourself with the repository's README.md file before attempting a pull request.
+Documentation for this image is stored in the [bhitsdev/phr](https://github.com/bhits-dev/phr) GitHub repository. Be sure to familiarize yourself with the repository's README.md file before attempting a pull request.
 
 ## Issues
 
