@@ -71,50 +71,6 @@ services:
 ```
 *NOTE: Please note that these additional arguments will be appended to the default `ENTRYPOINT` specified in the `Dockerfile` unless the `ENTRYPOINT` is overridden.*
 
-### Configuring Sample C32/C-CDA Documents
-
-The PHR allows patients to upload C32 and/or C-CDA documents to their account for use when testing their consents using Try My Policy. The PHR can also be configured to provide one or more sample C32 and/or C-CDA documents which will be made available to all patients to use when testing their consents. By default, the PHR is configured to provide a single sample document named `"C-CDA_R2_CCD_2_MODIFIED.xml"` to all patients. That sample document is built into the PHR application itself, and the default `application.yml` file is set to use that built-in `"C-CDA_R2_CCD_2_MODIFIED.xml"` file as the sample document for patients.
-
-To use your own file(s) as the sample document(s) for patients, override the `application.yml` file's `c2s.phr.patient-document-uploads.sample-uploaded-documents` property as follows:
-```yml
-...
-c2s:
-  phr:
-    patientDocumentUploads:
-      ...
-      sampleUploadedDocuments:
-        - file: "<FULL PATH TO YOUR SAMPLE FILE, INCLUDING FILE NAME>"
-          fileName: "<FILE NAME OF YOUR SAMPLE FILE, WITHOUT THE ENTIRE PATH>"
-          documentName: "<NAME OF DOCUMENT TO SHOW TO USERS>"
-          contentType: "<MIME TYPE OF YOUR SAMPLE FILE>"
-...
-```
-
-You can also configure PHR to provide more than one sample document. To do so, see the following example:
-```yml
-...
-c2s:
-  phr:
-    patientDocumentUploads:
-      ...
-      sampleUploadedDocuments:
-        - file: "/usr/local/custom_sample_docs/sample_doc_1.xml"
-          fileName: "sample_doc_1.xml"
-          documentName: "Sample Document 1"
-          contentType: "text/xml"
-        - file: "/usr/local/custom_sample_docs/sample_doc_2.xml"
-          fileName: "sample_doc_2.xml"
-          documentName: "Sample Document 2"
-          contentType: "text/xml"
-...
-```
-
-**IMPORTANT NOTES:**
-1. For the `file` property, you need to specify the entire path to your sample file **and** the file name itself (e.g. `"/usr/local/custom_sample_docs/sample_doc_1.xml"`).
-2. For the `fileName` property, you need to specify just the file name **without** the path (e.g. `"sample_doc_1.xml"`). **The file name you use here must be the same as the file name at the end of the path in the `file` property.**
-3. For the `documentName` property, this can be any user friendly string to use as the document name which is displayed to users.
-4. For the `contentType` property, specify the correct [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) of your sample file. This will usually be `"text/xml"`.
-
 ### Enable SSL
 
 For simplicity in development and testing environments, SSL is **NOT** enabled by default configuration. SSL can easily be enabled following the examples below:
