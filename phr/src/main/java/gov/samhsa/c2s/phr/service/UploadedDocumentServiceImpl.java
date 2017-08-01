@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,21 +67,10 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
             throw new InvalidInputException("Patient MRN cannot be null or empty");
         }
 
-        List<UploadedDocument> uploadedPatientDocumentsList = uploadedDocumentRepository.findAllByPatientMrn(patientMrn);
-        List<UploadedDocumentInfoDto> uploadedDocumentInfoDtoList = new ArrayList<>();
-
-        if (uploadedPatientDocumentsList.size() > 0) {
-            uploadedDocumentInfoDtoList = uploadedPatientDocumentsList.stream()
-                    .map(uploadedDocument -> modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class))
-                    .collect(Collectors.toList());
-        }
-
-        if (uploadedDocumentInfoDtoList.size() <= 0) {
-            log.error("No documents were found for the specified patientMrn (patientMrn: " + patientMrn + ") in the getPatientDocumentInfoList method, nor were any sample documents configured");
-            throw new NoDocumentsFoundException("No documents found for specified patient MRN");
-        }
-
-        return uploadedDocumentInfoDtoList;
+        return uploadedDocumentRepository.findAllByPatientMrn(patientMrn)
+                .stream()
+                .map(uploadedDocument -> modelMapper.map(uploadedDocument, UploadedDocumentInfoDto.class))
+                .collect(Collectors.toList());
     }
 
     /**
