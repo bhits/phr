@@ -277,25 +277,19 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         try {
             validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
-        } catch (HystrixRuntimeException hystrixErr) {
-            Throwable causedBy = hystrixErr.getCause();
 
-            if (!(causedBy instanceof FeignException)) {
-                log.error("Unexpected instance of HystrixRuntimeException has occurred", hystrixErr);
-                throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
-            }
-
-            int causedByStatus = ((FeignException) causedBy).status();
+        } catch (FeignException fe) {
+            int causedByStatus = fe.status();
 
             switch (causedByStatus) {
                 case 400:
-                    log.error("document-validator client returned a 400 - BAD REQUEST status, indicating invalid input was passed to document-validator client", causedBy);
+                    log.error("document-validator client returned a 400 - BAD REQUEST status, indicating invalid input was passed to document-validator client", fe);
                     throw new InvalidInputException("Invalid input was passed to document-validator client");
                 case 412:
                     log.info("Document is invalid.");
                     return false;
                 default:
-                    log.error("document-validator client returned an unexpected instance of FeignException", causedBy);
+                    log.error("document-validator client returned an unexpected instance of FeignException", fe);
                     throw new DocumentValidatorResponseException("An unknown error occurred while attempting to communicate with document-validator service");
             }
         }
