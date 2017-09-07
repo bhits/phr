@@ -277,6 +277,7 @@ public class UploadedDocumentServiceImpl implements UploadedDocumentService {
 
         try {
             validationResponse = documentValidatorService.validateClinicalDocumentFile(documentFile);
+
         } catch (FeignException fe) {
             int causedByStatus = fe.status();
 
