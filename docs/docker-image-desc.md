@@ -4,7 +4,7 @@ The Patient Health Record (PHR) is a core service which manages and retains non-
 
 # Supported Source Code Tags and Current `Dockerfile` Link
 
-[`2.1.0 (latest)`](https://github.com/bhits-dev/phr/releases/tag/2.1.0), [`2.0.0`](https://github.com/bhits-dev/phr/releases/tag/2.0.0)
+[`2.2.0 (latest)`](https://github.com/bhits-dev/phr/releases/tag/2.2.0), [`2.1.0`](https://github.com/bhits-dev/phr/releases/tag/2.1.0), [`2.0.0`](https://github.com/bhits-dev/phr/releases/tag/2.0.0)
 
 [`Current Dockerfile`](../phr/src/main/docker/Dockerfile)
 
